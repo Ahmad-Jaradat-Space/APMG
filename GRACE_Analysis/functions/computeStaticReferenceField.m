@@ -78,9 +78,10 @@ fprintf('  Method: Multi-year temporal average with C20/degree-1 corrections\n\n
 %% Step 1: Get list of GRACE files and filter by reference years
 fprintf('Step 1: Scanning GRACE files for reference years...\n');
 
-gfc_files = dir(fullfile(grace_dir, '*.gfc'));
+% Filter to use only BB01 files (degree 96) for consistency with main analysis
+gfc_files = dir(fullfile(grace_dir, '*BB01*.gfc'));
 if isempty(gfc_files)
-    error('No .gfc files found in directory: %s', grace_dir);
+    error('No BB01 .gfc files found in directory: %s', grace_dir);
 end
 
 fprintf('  Found %d total GRACE files\n', length(gfc_files));

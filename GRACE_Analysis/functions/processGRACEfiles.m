@@ -22,7 +22,7 @@ function [cnm_ts, snm_ts, time_mjd] = processGRACEfiles(grace_dir, c20_file, deg
 % NOTES:
 %   - Uses existing readSHC.m function
 %   - Applies DDK3 filtering (already in files)
-%   - Handles BA01/BB01 (A/B satellite) files
+%   - Processes only BB01 files (degree 96) for consistent high resolution
 %
 % Author: GRACE Analysis Project
 % Date: 2025
@@ -49,9 +49,11 @@ fprintf('Using C20 corrections from: %s\n', c20_file);
 fprintf('Using degree-1 coefficients from: %s\n', deg1_file);
 
 %% Step 1: Get list of GRACE files and extract time information
-gfc_files = dir(fullfile(grace_dir, '*.gfc'));
+% Filter to use only BB01 files (degree 96) instead of all files
+% This avoids processing both BA01 (degree 60) and BB01 (degree 96) for same months
+gfc_files = dir(fullfile(grace_dir, '*BB01*.gfc'));
 if isempty(gfc_files)
-    error('No .gfc files found in directory: %s', grace_dir);
+    error('No BB01 .gfc files found in directory: %s', grace_dir);
 end
 
 fprintf('Found %d GRACE files\n', length(gfc_files));
@@ -116,17 +118,137 @@ fprintf('Time range: %.3f - %.3f (decimal years)\n', min(mid_times), max(mid_tim
 
 %% Step 2: Load C20 replacement data
 fprintf('Loading C20 replacement data...\n');
-c20_data = load(c20_file);
-c20_time = c20_data(:, 1); % Decimal year
-c20_values = c20_data(:, 2); % Normalized C20 values
+try
+    % Read C20 file with header skipping (robust parsing)
+    fid = fopen(c20_file, 'r');
+    if fid == -1
+        error('Cannot open C20 file: %s', c20_file);
+    end
+    
+    % Skip header lines (lines starting with # or containing text)
+    c20_data = [];
+    while ~feof(fid)
+        line = fgetl(fid);
+        if ischar(line) && ~isempty(line) && ~startsWith(strtrim(line), '#')
+            % Try to parse as numeric data
+            nums = str2num(line); %#ok<ST2NM>
+            if ~isempty(nums) && length(nums) >= 2
+                c20_data = [c20_data; nums(1:2)]; %#ok<AGROW>
+            end
+        end
+    end
+    fclose(fid);
+    
+    if isempty(c20_data)
+        error('No numeric C20 data found in file');
+    end
+    
+    c20_time = c20_data(:, 1); % Decimal year
+    c20_values = c20_data(:, 2); % Normalized C20 values
+    fprintf('  Loaded %d C20 data points\n', length(c20_time));
+catch ME
+    if exist('fid', 'var') && fid ~= -1
+        fclose(fid);
+    end
+    error('Failed to load C20 data: %s', ME.message);
+end
 
 %% Step 3: Load degree-1 coefficients
 fprintf('Loading degree-1 coefficients...\n');
-deg1_data = load(deg1_file);
-deg1_time = deg1_data(:, 1); % Decimal year
-deg1_c10 = deg1_data(:, 2); % C10 (unnormalized)
-deg1_c11 = deg1_data(:, 3); % C11 (unnormalized)
-deg1_s11 = deg1_data(:, 4); % S11 (unnormalized)
+try
+    % Read degree-1 file with header skipping (robust parsing)
+    fid = fopen(deg1_file, 'r');
+    if fid == -1
+        error('Cannot open degree-1 file: %s', deg1_file);
+    end
+    
+    % Skip header lines and read numeric data
+    deg1_data = [];
+    while ~feof(fid)
+        line = fgetl(fid);
+        if ischar(line) && ~isempty(line)
+            % Try to parse as numeric data (should have YYYYMM format)
+            nums = str2num(line); %#ok<ST2NM>
+            if ~isempty(nums) && length(nums) >= 4
+                % Convert YYYYMM to decimal year
+                year_month = nums(1);
+                year = floor(year_month / 100);
+                month = mod(year_month, 100);
+                decimal_year = year + (month - 0.5) / 12; % Mid-month
+                
+                % Extract coefficients based on degree and order
+                degree = nums(2);  % n (should be 1)
+                order = nums(3);   % m (0 or 1)
+                coeff = nums(4);   % Coefficient value
+                
+                if degree == 1
+                    if order == 0  % C10
+                        deg1_data = [deg1_data; decimal_year, 10, coeff]; %#ok<AGROW>
+                    elseif order == 1 % C11 or S11 (need to determine from position)
+                        % This is more complex - we need to track both C11 and S11
+                        % For simplicity, we'll extract the 5th column as second coeff
+                        coeff2 = 0;
+                        if length(nums) >= 5
+                            coeff2 = nums(5);
+                        end
+                        deg1_data = [deg1_data; decimal_year, 11, coeff]; %#ok<AGROW>
+                        if coeff2 ~= 0
+                            deg1_data = [deg1_data; decimal_year, 12, coeff2]; %#ok<AGROW>
+                        end
+                    end
+                end
+            end
+        end
+    end
+    fclose(fid);
+    
+    if isempty(deg1_data)
+        error('No numeric degree-1 data found in file');
+    end
+    
+    % Reorganize data by coefficient type
+    deg1_times_all = deg1_data(:, 1);
+    deg1_types = deg1_data(:, 2);
+    deg1_values = deg1_data(:, 3);
+    
+    % Get unique times
+    deg1_time = unique(deg1_times_all);
+    
+    % Initialize coefficient arrays
+    deg1_c10 = zeros(size(deg1_time));
+    deg1_c11 = zeros(size(deg1_time));
+    deg1_s11 = zeros(size(deg1_time));
+    
+    % Fill coefficient arrays
+    for i = 1:length(deg1_time)
+        t = deg1_time(i);
+        
+        % Find C10 (type 10)
+        idx_c10 = (deg1_times_all == t) & (deg1_types == 10);
+        if any(idx_c10)
+            deg1_c10(i) = deg1_values(find(idx_c10, 1));
+        end
+        
+        % Find C11 (type 11) 
+        idx_c11 = (deg1_times_all == t) & (deg1_types == 11);
+        if any(idx_c11)
+            deg1_c11(i) = deg1_values(find(idx_c11, 1));
+        end
+        
+        % Find S11 (type 12)
+        idx_s11 = (deg1_times_all == t) & (deg1_types == 12);
+        if any(idx_s11)
+            deg1_s11(i) = deg1_values(find(idx_s11, 1));
+        end
+    end
+    
+    fprintf('  Loaded %d degree-1 data points\n', length(deg1_time));
+catch ME
+    if exist('fid', 'var') && fid ~= -1
+        fclose(fid);
+    end
+    error('Failed to load degree-1 data: %s', ME.message);
+end
 
 %% Step 4: Read first file to get dimensions
 fprintf('Reading first file to determine array dimensions...\n');

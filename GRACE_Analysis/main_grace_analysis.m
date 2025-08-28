@@ -6,6 +6,9 @@ function main_grace_analysis()
 %   satellite data and GPS observations following Wahr et al. (1998) 
 %   and Fu & Freymueller (2012) methodologies.
 %
+% CRITICAL FIX: Multi-year static reference field for seasonal signal preservation
+%   (Uses 2004-2009 static reference instead of absolute coefficients to preserve seasonal cycle)
+%
 % WORKFLOW:
 %   1. Load Love numbers (PREM model)
 %   2. Process GRACE files with C20/degree-1 corrections
@@ -45,7 +48,7 @@ addpath(fullfile(pwd, 'lib', 'gps_processing'));
 config = struct();
 
 % GRACE processing parameters
-config.nmax = 60;                          % Maximum SH degree for GRACE
+config.nmax = 96;                          % Maximum SH degree for GRACE BB01 files
 config.earth_model = 'PREM';               % Earth model for Love numbers
 config.grace_dir = 'data/grace';           % Updated path for current structure
 config.c20_file = 'data/aux/C20_RL05.txt'; % Updated path for current structure
@@ -114,14 +117,57 @@ fprintf('Step 3: Loading GPS time series data...\n');
 step3_start = tic;
 
 try
-    % Load GPS coordinates
-    gps_coords = load(config.gps_coords_file);
-    station_names = gps_coords(:, 1);  % Assuming first column is station ID
-    lat_gps = gps_coords(:, 2);        % Latitude
-    lon_gps = gps_coords(:, 3);        % Longitude
+    % Load GPS coordinates manually due to header line
+    fprintf('  Loading GPS coordinates from: %s\n', config.gps_coords_file);
     
-    n_stations = length(lat_gps);
-    fprintf('  Found %d GPS stations\n', n_stations);
+    % Read GPS coordinate file manually
+    fid = fopen(config.gps_coords_file, 'r');
+    if fid == -1
+        error('Cannot open GPS coordinate file: %s', config.gps_coords_file);
+    end
+    
+    station_map = containers.Map();
+    line_num = 0;
+    
+    while ~feof(fid)
+        line = fgetl(fid);
+        line_num = line_num + 1;
+        
+        if ischar(line) && ~isempty(line)
+            % Skip header line
+            if line_num == 1 && contains(line, 'sta_id')
+                continue;
+            end
+            
+            % Parse line - assuming whitespace separated
+            parts = strsplit(strtrim(line));
+            if length(parts) >= 3
+                station_id = parts{1};
+                lat_val = str2double(parts{2});
+                lon_val = str2double(parts{3});
+                
+                if ~isnan(lat_val) && ~isnan(lon_val)
+                    station_map(station_id) = [lat_val, lon_val];
+                    fprintf('    Loaded %s: %.3f°N, %.3f°W\n', station_id, lat_val, abs(lon_val));
+                end
+            end
+        end
+    end
+    fclose(fid);
+    
+    % Extract station information 
+    station_names = keys(station_map);
+    n_stations = length(station_names);
+    lat_gps = zeros(n_stations, 1);
+    lon_gps = zeros(n_stations, 1);
+    
+    for i = 1:n_stations
+        coords = station_map(station_names{i});
+        lat_gps(i) = coords(1);
+        lon_gps(i) = coords(2);
+    end
+    
+    fprintf('  Successfully loaded %d GPS stations\n', n_stations);
     
     % Initialize GPS data storage
     gps_data = cell(n_stations, 1);
@@ -132,37 +178,45 @@ try
     
     for i = 1:n_stations
         try
-            % Construct filename (assuming .tenv3 format)
+            % Construct filename using actual station name (e.g., P056.tenv3)
             station_file = fullfile(config.gps_data_dir, ...
-                                  sprintf('station_%04d.tenv3', station_names(i)));
+                                  sprintf('%s.tenv3', station_names{i}));
             
             if exist(station_file, 'file')
                 % Load time series using existing function
-                [gps_ts] = load_tenv3(station_file);
+                gps_struct = load_tenv3(station_file);
                 
-                if ~isempty(gps_ts) && size(gps_ts, 1) > 50  % Minimum 50 observations
-                    % Extract vertical component and time
-                    time_mjd_gps{i} = gps_ts(:, 1);  % MJD time
-                    elevation = gps_ts(:, 4);        % Vertical component
+                if ~isempty(gps_struct) && isfield(gps_struct, 't') && isfield(gps_struct, 'up') && length(gps_struct.t) > 50  % Minimum 50 observations
+                    fprintf('    Station %s: loaded %d observations\n', station_names{i}, length(gps_struct.t));
+                    
+                    % Extract vertical component and time from structure
+                    time_mjd_gps{i} = gps_struct.t;   % MJD time
+                    elevation = gps_struct.up;        % Vertical component (meters)
                     
                     % Detrend GPS time series
                     if strcmp(config.detrend_method, 'linear')
-                        elevation_detrended = fitPolynomial(time_mjd_gps{i}, elevation, 1);
+                        % Add missing sigma0 parameter (assume 1mm standard deviation)
+                        poly_result = fitPolynomial(time_mjd_gps{i}, elevation, 1, 0.001);
+                        elevation_detrended = poly_result.v;  % Use residuals (detrended data)
                     else
                         elevation_detrended = elevation;  % No detrending
                     end
                     
                     gps_data{i} = elevation_detrended;
                     valid_stations(i) = true;
+                    fprintf('    Station %s: successfully validated\n', station_names{i});
                     
                     if mod(i, 10) == 0 || i == n_stations
                         fprintf('    Processed %d/%d stations\n', i, n_stations);
                     end
                 end
+            else
+                fprintf('    Station %s: file not found\n', station_names{i});
             end
             
-        catch
+        catch ME
             % Skip problematic stations
+            fprintf('    Station %s: ERROR - %s\n', station_names{i}, ME.message);
             valid_stations(i) = false;
         end
     end
@@ -203,15 +257,52 @@ try
     [nlat, nlon] = size(lat_grid);
     u_vertical_ts = zeros(nlat, nlon, n_months);
     
-    % Process each time step
-    fprintf('  Computing vertical deformation for %d time steps:\n', n_months);
+    % Load or compute multi-year static reference field (Wahr et al. 1998 methodology)
+    fprintf('  Loading multi-year static reference field for seasonal analysis...\n');
+    
+    % Define reference years for static field (literature recommends 5+ years)
+    reference_years = [2004, 2005, 2006, 2007, 2008, 2009]; % 6-year reference period
+    reference_file = fullfile(config.output_dir, 'static_reference_field_2004_2009.mat');
+    
+    if exist(reference_file, 'file')
+        % Load existing reference field
+        fprintf('  Loading existing reference field: %s\n', reference_file);
+        ref_data = load(reference_file);
+        cnm_static = ref_data.cnm_static;
+        snm_static = ref_data.snm_static;
+        fprintf('  Loaded %d-year reference field (%d solutions)\n', ...
+                length(ref_data.reference_years), ref_data.valid_count);
+    else
+        % Compute new reference field
+        fprintf('  Computing new multi-year reference field for %d-%d...\n', ...
+                min(reference_years), max(reference_years));
+        fprintf('  This preserves seasonal signal by using static background (Wahr et al. 1998)\n');
+        [cnm_static, snm_static] = computeStaticReferenceField(...
+            config.grace_dir, config.c20_file, config.deg1_file, reference_years);
+        fprintf('  Reference field computed successfully\n');
+    end
+    
+    % Ensure dimensions match current data
+    if size(cnm_static, 1) ~= size(cnm_ts, 1) || size(cnm_static, 2) ~= size(cnm_ts, 2)
+        error('Reference field dimensions [%d x %d] do not match current data [%d x %d]', ...
+              size(cnm_static, 1), size(cnm_static, 2), size(cnm_ts, 1), size(cnm_ts, 2));
+    end
+    
+    % Process each time step with PROPER mean field removal for seasonal analysis
+    fprintf('  Computing vertical deformation for %d time steps using coefficient changes:\n', n_months);
+    fprintf('  Method: ΔC_nm = C_nm(month) - C_nm(static_reference) [preserves seasonal cycle]\n');
     
     for t = 1:n_months
         % Extract coefficients for this time step
-        cnm = cnm_ts(:, :, t);
-        snm = snm_ts(:, :, t);
+        cnm_abs = cnm_ts(:, :, t);
+        snm_abs = snm_ts(:, :, t);
         
-        % Convert to vertical deformation using Wahr et al. (1998)
+        % Remove STATIC reference field to get coefficient changes (ΔC_nm, ΔS_nm)
+        % This preserves seasonal variations relative to multi-year background
+        cnm = cnm_abs - cnm_static;
+        snm = snm_abs - snm_static;
+        
+        % Convert to vertical deformation using Wahr et al. (1998) with ΔC_nm, ΔS_nm
         u_vertical = graceToVerticalDeformation(cnm, snm, theta_grid, lambda_grid, h_n, k_n);
         
         u_vertical_ts(:, :, t) = u_vertical;
