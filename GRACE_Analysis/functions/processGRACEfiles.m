@@ -53,6 +53,13 @@ while ~feof(fid)
     end
 end
 fclose(fid);
+
+% Extract degree-1 data arrays for interpolation (Swenson et al. 2008)
+deg1_time = deg1_data(:, 1); % Decimal year
+deg1_c10 = deg1_data(:, 2);  % C10 (unnormalized)
+deg1_c11 = deg1_data(:, 3);  % C11 (unnormalized) - set to 0
+deg1_s11 = deg1_data(:, 4);  % S11 (unnormalized)
+
 first_file = fullfile(grace_dir, gfc_files(1).name);
 fid = fopen(first_file, 'r');
 temp_data = [];
@@ -85,8 +92,31 @@ for i = 1:n_files
     end
     fclose(fid);
     [cnm, snm] = readSHC(temp_data);
+    
+    % Apply C20 replacement (Cheng et al. 2013)
     c20_interp = interp1(c20_time, c20_values, current_time, 'linear', 'extrap');
     cnm(3, 1) = c20_interp;
+    
+    % Add degree-1 coefficients (Swenson et al. 2008) - CRITICAL for seasonal analysis
+    if nmax >= 1
+        try
+            c10_interp = interp1(deg1_time, deg1_c10, current_time, 'linear', 'extrap');
+            c11_interp = interp1(deg1_time, deg1_c11, current_time, 'linear', 'extrap');
+            s11_interp = interp1(deg1_time, deg1_s11, current_time, 'linear', 'extrap');
+        catch
+            % Use nearest neighbor if interpolation fails
+            [~, idx] = min(abs(deg1_time - current_time));
+            c10_interp = deg1_c10(idx);
+            c11_interp = deg1_c11(idx);
+            s11_interp = deg1_s11(idx);
+        end
+        
+        % Convert from unnormalized to normalized (multiply by sqrt(3))
+        cnm(2, 1) = c10_interp * sqrt(3); % n=1, m=0 -> index (2,1)
+        cnm(2, 2) = c11_interp * sqrt(3); % n=1, m=1 -> index (2,2)
+        snm(2, 2) = s11_interp * sqrt(3); % n=1, m=1 -> index (2,2)
+    end
+    
     cnm_ts(:, :, i) = cnm;
     snm_ts(:, :, i) = snm;
 end
