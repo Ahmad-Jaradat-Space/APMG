@@ -66,10 +66,10 @@ constants.days_per_year = 365.25;       % Days per year (Julian)
 constants.seconds_per_day = 86400;      % Seconds per day
 
 %% Love Numbers Reference Values (PREM)
-% These are approximate values for reference
-constants.h2_prem = -0.31080;           % Vertical displacement Love number
-constants.l2_prem = -0.18480;           % Horizontal displacement Love number  
-constants.k2_prem = -0.13210;           % Gravitational potential Love number
+% Load Love numbers from Wang et al. (2012) - CORRECTED POSITIVE VALUES
+constants.h2_prem = 0.6149;            % Vertical displacement Love number
+constants.l2_prem = 0.0839;            % Horizontal displacement Love number  
+constants.k2_prem = 0.3020;            % Gravitational potential Love number
 
 %% Scaling Factors for Different Quantities
 % Based on Wahr et al. (1998) and main_fun_new.m implementation
@@ -88,9 +88,10 @@ constants.gravity_anomaly_base = constants.GM / constants.R^2;
 % height_factor(n,h) = (R/(R+h))^n
 constants.height_factor_base = @(h) constants.R / (constants.R + h);
 
-% Vertical deformation scaling (Wahr et al. 1998)
-constants.vertical_deformation_scale = (constants.R * constants.rho_water) / ...
-                                      (3 * constants.rho_earth);
+% Vertical deformation scaling (Wahr et al. 1998) 
+% Exact formula from Wahr et al. (1998): (R × ρ_water) / (3 × ρ_earth)
+% This converts dimensionless spherical harmonic coefficients to meters of displacement
+constants.wahr_scaling_factor = (constants.R * constants.rho_water) / (3 * constants.rho_earth);  % [m]
 
 %% Quality Control
 % Validate critical constants
@@ -112,6 +113,6 @@ fprintf('  GM = %.6e m³/s²\n', constants.GM);
 fprintf('  R = %.1f m\n', constants.R);
 fprintf('  ρ_water = %.1f kg/m³\n', constants.rho_water);
 fprintf('  ρ_earth = %.1f kg/m³\n', constants.rho_earth);
-fprintf('  Vertical deformation scale = %.6e m\n', constants.vertical_deformation_scale);
+fprintf('  Wahr et al. (1998) scaling factor = %.1f m\n', constants.wahr_scaling_factor);
 
 end

@@ -226,7 +226,16 @@ if n_valid > 0
                 if sum(valid_both) > 10
                     data_i = grace_at_gps(i, valid_both);
                     data_j = grace_at_gps(j, valid_both);
-                    station_correlations(i, j) = corr(data_i', data_j');
+                    % Manual correlation calculation (replace corr function)
+                    data_i = data_i(:);
+                    data_j = data_j(:);
+                    r_num = sum((data_i - mean(data_i)) .* (data_j - mean(data_j)));
+                    r_den = sqrt(sum((data_i - mean(data_i)).^2) * sum((data_j - mean(data_j)).^2));
+                    if r_den > 0
+                        station_correlations(i, j) = r_num / r_den;
+                    else
+                        station_correlations(i, j) = 0;
+                    end
                 end
             end
         end

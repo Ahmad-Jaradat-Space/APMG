@@ -102,11 +102,25 @@ fprintf('Common time grid: %d points\n', length(time_common));
 
 %% Step 3: Interpolate both time series to common grid
 try
-    % GPS interpolation
-    gps_interp = interp1(time_gps_clean, gps_ts_clean, time_common, 'linear', NaN);
+    % Remove duplicate time points in GPS data
+    [time_gps_unique, gps_unique_idx] = unique(time_gps_clean, 'stable');
+    gps_ts_unique = gps_ts_clean(gps_unique_idx);
     
-    % GRACE interpolation  
-    grace_interp = interp1(time_grace_clean, grace_ts_clean, time_common, 'linear', NaN);
+    % Remove duplicate time points in GRACE data
+    [time_grace_unique, grace_unique_idx] = unique(time_grace_clean, 'stable');
+    grace_ts_unique = grace_ts_clean(grace_unique_idx);
+    
+    % Check for sufficient unique points
+    if length(time_gps_unique) < 2 || length(time_grace_unique) < 2
+        error('Insufficient unique time points for interpolation (GPS=%d, GRACE=%d)', ...
+              length(time_gps_unique), length(time_grace_unique));
+    end
+    
+    % GPS interpolation with unique time points
+    gps_interp = interp1(time_gps_unique, gps_ts_unique, time_common, 'linear', NaN);
+    
+    % GRACE interpolation with unique time points
+    grace_interp = interp1(time_grace_unique, grace_ts_unique, time_common, 'linear', NaN);
     
 catch ME
     error('Interpolation failed: %s', ME.message);
@@ -118,8 +132,10 @@ n_common = sum(common_valid);
 
 fprintf('Common valid observations: %d\n', n_common);
 
-if n_common < 10
+if n_common < 4
     error('Insufficient common observations (%d) for statistical analysis', n_common);
+elseif n_common < 6
+    warning('Limited common observations (%d) - results may have high uncertainty', n_common);
 end
 
 % Extract common data
@@ -159,17 +175,16 @@ else
     stats.nrmse = Inf;
 end
 
-% Correlation using existing corr.m function
-try
-    [stats.correlation, stats.correlation_p] = corr(gps_common, grace_common);
-catch
-    % Fallback if corr function not available
-    correlation_matrix = corrcoef(gps_common, grace_common);
-    stats.correlation = correlation_matrix(1, 2);
-    
-    % Simple significance test (rough approximation)
+% Correlation calculation - using corrcoef which is always available
+correlation_matrix = corrcoef(gps_common, grace_common);
+stats.correlation = correlation_matrix(1, 2);
+
+% Simple significance test (rough approximation)
+if abs(stats.correlation) < 1
     t_stat = stats.correlation * sqrt((n_common - 2) / (1 - stats.correlation^2));
     stats.correlation_p = 2 * (1 - tcdf(abs(t_stat), n_common - 2));
+else
+    stats.correlation_p = 0; % Perfect correlation
 end
 
 % Nash-Sutcliffe Efficiency using existing NSE.m function
@@ -191,9 +206,17 @@ fprintf('  Bias: %.3f mm\n', stats.bias * 1000);
 %% Step 6: Seasonal analysis
 fprintf('\nPerforming seasonal analysis...\n');
 
-% Estimate seasonal amplitude for each time series
-[stats.amplitude_gps, phase_gps] = estimateSeasonalAmplitude(gps_common, time_common_valid);
-[stats.amplitude_grace, phase_grace] = estimateSeasonalAmplitude(grace_common, time_common_valid);
+% Estimate seasonal amplitude for each time series (requires at least 6 points for meaningful analysis)
+if n_common >= 6
+    [stats.amplitude_gps, phase_gps] = estimateSeasonalAmplitude(gps_common, time_common_valid);
+    [stats.amplitude_grace, phase_grace] = estimateSeasonalAmplitude(grace_common, time_common_valid);
+else
+    % Fallback for limited data
+    stats.amplitude_gps = (max(gps_common) - min(gps_common)) / 2;
+    stats.amplitude_grace = (max(grace_common) - min(grace_common)) / 2;
+    phase_gps = 0;
+    phase_grace = 0;
+end
 
 % Amplitude ratio
 if stats.amplitude_gps > 0

@@ -1,0 +1,1063 @@
+==========================================
+GRACE-GPS 1-YEAR ANALYSIS (2005)
+Enhanced Visualization Suite
+Based on Wahr et al. (1998) & Fu & Freymueller (2012)
+==========================================
+
+Analysis Configuration:
+  Target Year: 2005
+  GPS Stations: 5 (P056, P140, P245, P308, P345)
+  Analysis Region: 35.0°-42.0°N, 118.0°-123.0°W
+  Grid Resolution: 0.5 degrees
+
+Step 1: Loading Love numbers (PREM model)...
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Loaded PREM Love numbers for degrees 0-60
+h_2 = -0.31878, l_2 = -0.18954, k_2 = -0.13549
+  Love numbers loaded successfully
+  h_2 = -0.31878, l_2 = -0.18954, k_2 = -0.13549
+  Step 1 completed in 0.25 seconds
+
+Step 2: Processing GRACE coefficient files for 2005...
+Processing GRACE files for year 2005
+GRACE directory: data/grace
+C20 corrections: data/aux/C20_RL05.txt
+Degree-1 coefficients: data/aux/deg1_coef.txt
+Found 312 GRACE files total
+Found 24 GRACE files for year 2005
+Time range: 2005.044 - 2005.958 (decimal years)
+Loading C20 replacement data...
+  Loaded 177 C20 data points
+Loading degree-1 coefficients...
+  Loaded 304 degree-1 data points
+Reading first file to determine array dimensions...
+Maximum degree: 60
+Array dimensions: 1 x 1
+Processing 24 GRACE files for 2005...
+  Processing file 5/24 (20.8%) - kfilter_DDK3_GSM-2_2005060-2005090_GRAC_UTCSR_BA01_0600.gfc
+  Processing file 10/24 (41.7%) - kfilter_DDK3_GSM-2_2005121-2005151_GRAC_UTCSR_BB01_0600.gfc
+  Processing file 15/24 (62.5%) - kfilter_DDK3_GSM-2_2005213-2005243_GRAC_UTCSR_BA01_0600.gfc
+  Processing file 20/24 (83.3%) - kfilter_DDK3_GSM-2_2005274-2005304_GRAC_UTCSR_BB01_0600.gfc
+  Processing file 24/24 (100.0%) - kfilter_DDK3_GSM-2_2005335-2005365_GRAC_UTCSR_BB01_0600.gfc
+
+Processing complete for year 2005!
+Valid files: 24/24 (100.0%)
+Output dimensions:
+  cnm_ts: 61 x 61 x 24
+  snm_ts: 61 x 61 x 24
+  time_mjd: 24 x 1
+C20 statistics for 2005:
+  Mean: -4.841694e-04
+  Std:  1.273531e-10
+  Range: -4.841696e-04 to -4.841692e-04
+Degree-1 C10 statistics for 2005:
+  Mean: 1.346145e-10
+  Std:  2.686905e-10
+  Range: -1.873560e-10 to 5.140449e-10
+Time coverage for 2005: MJD 53707.7 to 54041.7
+  Processed 24 monthly GRACE solutions for 2005
+  Time range: MJD 53707.7 to 54041.7
+  Step 2 completed in 8.18 seconds
+
+Step 3: Loading GPS time series data...
+  Loading GPS coordinates manually...
+    Loaded P056: 36.027°N, 119.063°W
+    Loaded P140: 38.829°N, 120.693°W
+    Loaded P245: 37.713°N, 119.706°W
+    Loaded P308: 37.901°N, 119.840°W
+    Loaded P345: 40.271°N, 122.271°W
+  Processing 5 GPS stations:
+    P056: 36.027°N, 119.063°W - 338 observations
+    P140: 38.829°N, 120.693°W - 121 observations
+    P245: Insufficient 2005 data (0 observations)
+    P308: Insufficient 2005 data (0 observations)
+    P345: 40.271°N, 122.271°W - 365 observations
+  Successfully processed 3 valid GPS stations
+  Step 3 completed in 1.05 seconds
+
+Step 4: Converting GRACE to vertical deformation...
+  Analysis grid: 15 x 11 points
+  Geographic bounds: 35.0°-42.0°N, 118.0°-123.0°W
+  Computing vertical deformation for 24 time steps:
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.0199 mm
+  Std:  140503.8255 mm
+  Min:  -16588.8866 mm
+  Max:  436940.3789 mm
+  RMS:  250931.1270 mm
+[Warning: Large deformation values detected (max: 436940.4 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.0199 mm
+  Std:  140503.8255 mm
+  Min:  -16588.8866 mm
+  Max:  436940.3789 mm
+  RMS:  250931.1270 mm
+[Warning: Large deformation values detected (max: 436940.4 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.0212 mm
+  Std:  140503.8264 mm
+  Min:  -16588.8867 mm
+  Max:  436940.3817 mm
+  RMS:  250931.1286 mm
+[Warning: Large deformation values detected (max: 436940.4 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.0212 mm
+  Std:  140503.8264 mm
+  Min:  -16588.8867 mm
+  Max:  436940.3817 mm
+  RMS:  250931.1286 mm
+[Warning: Large deformation values detected (max: 436940.4 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.0233 mm
+  Std:  140503.8277 mm
+  Min:  -16588.8869 mm
+  Max:  436940.3859 mm
+  RMS:  250931.1311 mm
+[Warning: Large deformation values detected (max: 436940.4 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.0233 mm
+  Std:  140503.8277 mm
+  Min:  -16588.8869 mm
+  Max:  436940.3859 mm
+  RMS:  250931.1311 mm
+[Warning: Large deformation values detected (max: 436940.4 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+    Processed 6/24 time steps (25.0%)
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.0455 mm
+  Std:  140503.8427 mm
+  Min:  -16588.8887 mm
+  Max:  436940.4325 mm
+  RMS:  250931.1578 mm
+[Warning: Large deformation values detected (max: 436940.4 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.0455 mm
+  Std:  140503.8427 mm
+  Min:  -16588.8887 mm
+  Max:  436940.4325 mm
+  RMS:  250931.1578 mm
+[Warning: Large deformation values detected (max: 436940.4 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.0500 mm
+  Std:  140503.8458 mm
+  Min:  -16588.8890 mm
+  Max:  436940.4421 mm
+  RMS:  250931.1633 mm
+[Warning: Large deformation values detected (max: 436940.4 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.0500 mm
+  Std:  140503.8458 mm
+  Min:  -16588.8890 mm
+  Max:  436940.4421 mm
+  RMS:  250931.1633 mm
+[Warning: Large deformation values detected (max: 436940.4 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.0456 mm
+  Std:  140503.8428 mm
+  Min:  -16588.8887 mm
+  Max:  436940.4328 mm
+  RMS:  250931.1580 mm
+[Warning: Large deformation values detected (max: 436940.4 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.0456 mm
+  Std:  140503.8428 mm
+  Min:  -16588.8887 mm
+  Max:  436940.4328 mm
+  RMS:  250931.1580 mm
+[Warning: Large deformation values detected (max: 436940.4 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+    Processed 12/24 time steps (50.0%)
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.1476 mm
+  Std:  140503.9117 mm
+  Min:  -16588.8968 mm
+  Max:  436940.6469 mm
+  RMS:  250931.2809 mm
+[Warning: Large deformation values detected (max: 436940.6 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.1476 mm
+  Std:  140503.9117 mm
+  Min:  -16588.8968 mm
+  Max:  436940.6469 mm
+  RMS:  250931.2809 mm
+[Warning: Large deformation values detected (max: 436940.6 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.1474 mm
+  Std:  140503.9115 mm
+  Min:  -16588.8968 mm
+  Max:  436940.6464 mm
+  RMS:  250931.2806 mm
+[Warning: Large deformation values detected (max: 436940.6 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.1474 mm
+  Std:  140503.9115 mm
+  Min:  -16588.8968 mm
+  Max:  436940.6464 mm
+  RMS:  250931.2806 mm
+[Warning: Large deformation values detected (max: 436940.6 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.1451 mm
+  Std:  140503.9100 mm
+  Min:  -16588.8966 mm
+  Max:  436940.6416 mm
+  RMS:  250931.2779 mm
+[Warning: Large deformation values detected (max: 436940.6 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.1451 mm
+  Std:  140503.9100 mm
+  Min:  -16588.8966 mm
+  Max:  436940.6416 mm
+  RMS:  250931.2779 mm
+[Warning: Large deformation values detected (max: 436940.6 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+    Processed 18/24 time steps (75.0%)
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.1197 mm
+  Std:  140503.8928 mm
+  Min:  -16588.8946 mm
+  Max:  436940.5882 mm
+  RMS:  250931.2472 mm
+[Warning: Large deformation values detected (max: 436940.6 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.1197 mm
+  Std:  140503.8928 mm
+  Min:  -16588.8946 mm
+  Max:  436940.5882 mm
+  RMS:  250931.2472 mm
+[Warning: Large deformation values detected (max: 436940.6 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.0916 mm
+  Std:  140503.8739 mm
+  Min:  -16588.8923 mm
+  Max:  436940.5294 mm
+  RMS:  250931.2135 mm
+[Warning: Large deformation values detected (max: 436940.5 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208194.0916 mm
+  Std:  140503.8739 mm
+  Min:  -16588.8923 mm
+  Max:  436940.5294 mm
+  RMS:  250931.2135 mm
+[Warning: Large deformation values detected (max: 436940.5 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208193.9975 mm
+  Std:  140503.8104 mm
+  Min:  -16588.8848 mm
+  Max:  436940.3319 mm
+  RMS:  250931.1000 mm
+[Warning: Large deformation values detected (max: 436940.3 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+Physical constants loaded:
+  GM = 3.986004e+14 m³/s²
+  R = 6378137.0 m
+  ρ_water = 1000.0 kg/m³
+  ρ_earth = 5517.0 kg/m³
+  Vertical deformation scale = 6.378137e+06 m
+Computing vertical deformation using optimized Wahr et al. (1998) formula
+Grid size: 15 x 11
+Maximum degree: 60
+Scaling factor: 6.378137e+06 m
+Pre-computing trigonometric matrices...
+Computing deformation for 15 latitude points...
+  Processing latitude 1/15 (6.7%)
+  Processing latitude 2/15 (13.3%)
+  Processing latitude 3/15 (20.0%)
+  Processing latitude 4/15 (26.7%)
+  Processing latitude 5/15 (33.3%)
+  Processing latitude 6/15 (40.0%)
+  Processing latitude 7/15 (46.7%)
+  Processing latitude 8/15 (53.3%)
+  Processing latitude 9/15 (60.0%)
+  Processing latitude 10/15 (66.7%)
+  Processing latitude 11/15 (73.3%)
+  Processing latitude 12/15 (80.0%)
+  Processing latitude 13/15 (86.7%)
+  Processing latitude 14/15 (93.3%)
+  Processing latitude 15/15 (100.0%)
+
+Vertical deformation computation complete!
+Statistics (finite values only):
+  Mean: 208193.9975 mm
+  Std:  140503.8104 mm
+  Min:  -16588.8848 mm
+  Max:  436940.3319 mm
+  RMS:  250931.1000 mm
+[Warning: Large deformation values detected (max: 436940.3 mm)] 
+[> In graceToVerticalDeformation (line 190)
+In main_grace_analysis_1year (line 297)] 
+Total deformation energy: 1.04e+07 m²
+    Processed 24/24 time steps (100.0%)
+  Step 4 completed in 4.25 seconds
+
+Step 5: Extracting GRACE deformation at GPS stations...
+Extracting GRACE deformation at 3 GPS stations
+Processing 24 time steps
+Grid bounds: Lat [35.00, 42.00], Lon [-123.00, -118.00]
+  Processing time step 2/24 (8.3%)
+  Processing time step 4/24 (16.7%)
+  Processing time step 6/24 (25.0%)
+  Processing time step 8/24 (33.3%)
+  Processing time step 10/24 (41.7%)
+  Processing time step 12/24 (50.0%)
+  Processing time step 14/24 (58.3%)
+  Processing time step 16/24 (66.7%)
+  Processing time step 18/24 (75.0%)
+  Processing time step 20/24 (83.3%)
+  Processing time step 22/24 (91.7%)
+  Processing time step 24/24 (100.0%)
+
+Extraction complete!
+Valid extractions: 72/72 (100.0%)
+
+Extracted deformation statistics:
+  Mean: 199766.385 mm
+  Std:  114719.982 mm
+  Min:  48152.520 mm
+  Max:  322762.003 mm
+  RMS:  229966.293 mm
+
+Seasonal analysis:
+  Station 1 seasonal amplitude: 0.02 mm
+  Station 2 seasonal amplitude: 0.08 mm
+  Station 3 seasonal amplitude: 0.12 mm
+[Warning: Very large deformation values detected (max: 322762.0 mm)] 
+[> In extractGRACEatGPS (line 215)
+In main_grace_analysis_1year (line 324)] 
+Error: Step 5 failed: Undefined function 'statgetargs' for input arguments of type 'cell'.

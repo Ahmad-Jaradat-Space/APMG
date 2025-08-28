@@ -17,7 +17,10 @@ function [u_vertical] = graceToVerticalDeformation(cnm, snm, theta, lambda, h_n,
 %   u_vertical - Vertical deformation in meters [nlat x nlon]
 %
 % FORMULA (Wahr et al., 1998):
-%   u_r(θ,λ) = (R*ρ_w)/(3*ρ_e) * Σ_n Σ_m (h_n/(1+k_n)) * P_nm(cosθ) * [ΔC_nm*cos(mλ) + ΔS_nm*sin(mλ)]
+%   u_r(θ,λ) = Σ_n Σ_m R * (h_n/(1+k_n)) * P_nm(cosθ) * [ΔC_nm*cos(mλ) + ΔS_nm*sin(mλ)]
+%
+% NOTE: The (R*ρ_w)/(3*ρ_e) factor in some literature refers to equivalent water height scaling.
+% For direct displacement calculation, we use R with coefficient changes (ΔC_nm, ΔS_nm).
 %
 % REFERENCE:
 %   Wahr, J., Molenaar, M., & Bryan, F. (1998). Time variability of the 
@@ -67,9 +70,10 @@ fprintf('Maximum degree: %d\n', nmax);
 % Initialize output
 u_vertical = zeros(nlat, nlon);
 
-% Use scaling factor from physical constants
-scale_factor = constants.vertical_deformation_scale;
-fprintf('Scaling factor: %.6e m\n', scale_factor);
+% Use Earth radius as scaling factor (from page 39 canonical formula)
+% For displacement from coefficient changes: Δh = R × Σ Σ ... 
+scale_factor = constants.R;  % Earth radius [m]
+fprintf('Scaling factor (Earth radius): %.0f m\n', scale_factor);
 
 %% OPTIMIZED COMPUTATION using vectorized approach from main_fun_new.m
 
@@ -185,13 +189,14 @@ if any(finite_mask(:))
     fprintf('  RMS:  %.4f mm\n', sqrt(mean(finite_values.^2)) * 1000);
     
     % Check if values are within reasonable range for hydrological loading
+    % Literature expectation: 1-20 mm seasonal variation (Wahr et al. 1998)
     max_abs = max(abs(finite_values)) * 1000; % in mm
-    if max_abs > 100
+    if max_abs > 50
         warning('Large deformation values detected (max: %.1f mm)', max_abs);
-    elseif max_abs < 0.1
-        warning('Very small deformation values (max: %.3f mm)', max_abs);
+    elseif max_abs < 0.5
+        warning('Small deformation values (max: %.3f mm) - may indicate issues with coefficients', max_abs);
     else
-        fprintf('Deformation magnitudes appear reasonable (max: %.1f mm)\n', max_abs);
+        fprintf('Deformation magnitudes appear reasonable for hydrological loading (max: %.1f mm)\n', max_abs);
     end
 else
     error('No finite values in output - computation failed');

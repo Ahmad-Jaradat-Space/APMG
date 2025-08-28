@@ -47,13 +47,13 @@ config = struct();
 % GRACE processing parameters
 config.nmax = 60;                          % Maximum SH degree for GRACE
 config.earth_model = 'PREM';               % Earth model for Love numbers
-config.grace_dir = 'data/grace_coefficients';
-config.c20_file = 'data/auxiliary/TN-14_C20_SLR.txt';
-config.deg1_file = 'data/auxiliary/TN-13_GEOC.txt';
+config.grace_dir = 'data/grace';           % Updated path for current structure
+config.c20_file = 'data/aux/C20_RL05.txt'; % Updated path for current structure
+config.deg1_file = 'data/aux/deg1_coef.txt'; % Updated path for current structure
 
 % GPS processing parameters
-config.gps_data_dir = 'data/gps_data';
-config.gps_coords_file = 'data/gps_data/gps_coordinates.txt';
+config.gps_data_dir = 'data/gps';          % Updated path for current structure  
+config.gps_coords_file = 'data/gps/GPSLatLong.tenv3'; % Updated to use actual coordinate file
 config.detrend_method = 'linear';          % Linear or polynomial detrending
 
 % Spatial analysis parameters
