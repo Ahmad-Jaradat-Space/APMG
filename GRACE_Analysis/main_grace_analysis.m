@@ -316,98 +316,208 @@ end
 
 fprintf('  Step 6 completed in %.2f seconds\n\n', toc(step6_start));
 
-%% Step 7: Generate comprehensive results
-fprintf('Step 7: Generating results and summary statistics...\n');
+%% Step 7: Create vertical deformation time series plots (GPS vs GRACE - PREM)
+fprintf('Step 7: Creating vertical deformation time series plots...\n');
 step7_start = tic;
 
-% Compile overall statistics
-correlations = zeros(n_valid_stations, 1);
-rmse_values = zeros(n_valid_stations, 1);
-nse_values = zeros(n_valid_stations, 1);
-bias_values = zeros(n_valid_stations, 1);
-amplitude_ratios = zeros(n_valid_stations, 1);
-phase_lags = zeros(n_valid_stations, 1);
-n_common_obs = zeros(n_valid_stations, 1);
+% Convert MJD to decimal years for plotting
+time_years_grace = mjd2decyear(time_mjd_grace);
+
+% Create production-level time series plot for each GPS station
+figure('Position', [50, 50, 1400, 800]);
+set(gcf, 'Color', 'white');
+
+n_cols = min(3, n_valid_stations);
+n_rows = ceil(n_valid_stations / n_cols);
 
 for i = 1:n_valid_stations
-    stats = comparison_stats{i};
-    correlations(i) = stats.correlation;
-    rmse_values(i) = stats.rmse * 1000;  % Convert to mm
-    nse_values(i) = stats.nse;
-    bias_values(i) = stats.bias * 1000;  % Convert to mm
-    amplitude_ratios(i) = stats.amplitude_ratio;
-    phase_lags(i) = stats.phase_lag;
-    n_common_obs(i) = stats.n_common;
+    subplot(n_rows, n_cols, i);
+    
+    % Convert GPS time to decimal years
+    time_years_gps = mjd2decyear(time_mjd_gps{i});
+    
+    % Plot GPS data in blue
+    gps_mm = gps_data{i} * 1000; % Convert to mm
+    plot(time_years_gps, gps_mm, 'b-', 'LineWidth', 2, 'DisplayName', 'GPS');
+    hold on;
+    
+    % Plot GRACE data in red
+    grace_mm = grace_at_gps_ts(i, :) * 1000; % Convert to mm
+    plot(time_years_grace, grace_mm, 'r-', 'LineWidth', 2, 'DisplayName', 'GRACE (PREM)');
+    
+    % Format subplot
+    title(sprintf('Station %s (%.2f°N, %.2f°W)', station_names{i}, lat_gps(i), -lon_gps(i)), ...
+          'FontSize', 11, 'FontWeight', 'bold');
+    xlabel('Year', 'FontSize', 10);
+    ylabel('Vertical Deformation (mm)', 'FontSize', 10);
+    legend('Location', 'best', 'FontSize', 9);
+    grid on;
+    grid minor;
+    set(gca, 'FontSize', 9);
+    
+    % Set consistent y-axis limits for comparison
+    ylim_range = max(abs([gps_mm; grace_mm'])) * 1.2;
+    ylim([-ylim_range, ylim_range]);
+    
+    hold off;
 end
 
+% Add overall title
+sgtitle('Vertical Crustal Deformation: GPS vs GRACE (PREM Model)', ...
+        'FontSize', 16, 'FontWeight', 'bold');
+
+% Save high-resolution plot
+print(fullfile(config.output_dir, 'time_series_gps_grace_prem.png'), '-dpng', '-r300');
+print(fullfile(config.output_dir, 'time_series_gps_grace_prem.eps'), '-depsc', '-r300');
+
+fprintf('  Created time series comparison plots\n');
 fprintf('  Step 7 completed in %.2f seconds\n\n', toc(step7_start));
 
-%% Step 8: Save results and create visualizations
-fprintf('Step 8: Saving results and creating visualizations...\n');
+%% Step 8: Create spatial difference maps every 5 years
+fprintf('Step 8: Creating spatial difference maps (GPS-GRACE) every 5 years...\n');
 step8_start = tic;
 
-% Save comprehensive results
-    results = struct();
-    results.config = config;
-    results.gps_stations.lat = lat_gps;
-    results.gps_stations.lon = lon_gps;
-    results.gps_stations.n_stations = n_valid_stations;
-    results.time_grace = time_mjd_grace;
-    results.comparison_stats = comparison_stats;
-    results.summary.correlations = correlations;
-    results.summary.rmse_mm = rmse_values;
-    results.summary.nse = nse_values;
-    results.summary.bias_mm = bias_values;
-    results.summary.amplitude_ratios = amplitude_ratios;
-    results.summary.phase_lags = phase_lags;
-    results.summary.n_common_obs = n_common_obs;
+% Define years for spatial analysis (every 5 years)
+analysis_years = [2005, 2010, 2015];
+n_years = length(analysis_years);
+
+% Convert years to MJD for finding closest time steps
+analysis_mjd = decyear2mjd(analysis_years);
+
+% Find closest GRACE time indices
+grace_indices = zeros(n_years, 1);
+for i = 1:n_years
+    [~, grace_indices(i)] = min(abs(time_mjd_grace - analysis_mjd(i)));
+end
+
+% Create figure with subplots
+figure('Position', [100, 100, 1200, 400]);
+set(gcf, 'Color', 'white');
+
+for i = 1:n_years
+    subplot(1, n_years, i);
     
-    % Save main results
-    save(fullfile(config.output_dir, 'grace_gps_analysis_results.mat'), 'results', '-v7.3');
+    % Get GRACE deformation for this year
+    grace_field = u_vertical_ts(:, :, grace_indices(i)) * 1000; % Convert to mm
     
-    % Create summary statistics table
-    station_summary = table(lat_gps, lon_gps, correlations, rmse_values, nse_values, ...
-                          bias_values, amplitude_ratios, phase_lags, n_common_obs, ...
-                          'VariableNames', {'Latitude', 'Longitude', 'Correlation', ...
-                          'RMSE_mm', 'NSE', 'Bias_mm', 'Amplitude_Ratio', 'Phase_Lag_days', 'N_Common'});
+    % Create interpolated GPS field for comparison
+    gps_field = zeros(size(lat_grid));
     
-    writetable(station_summary, fullfile(config.output_dir, 'station_comparison_summary.csv'));
-    
-    % Generate visualizations if requested
-    if config.generate_plots
-        % Plot 1: Correlation map
-        figure('Position', [100, 100, 800, 600]);
-        scatter(lon_gps, lat_gps, 100, correlations, 'filled');
-        colorbar;
-        title('GPS-GRACE Correlation by Station');
-        xlabel('Longitude (deg)');
-        ylabel('Latitude (deg)');
-        caxis([0, 1]);
-        colormap(jet);
-        grid on;
-        saveas(gcf, fullfile(config.output_dir, 'correlation_map.png'));
+    % Simple interpolation of GPS data to grid
+    for j = 1:n_valid_stations
+        % Find closest time in GPS data
+        gps_time_year = mjd2decyear(time_mjd_gps{j});
+        [~, gps_time_idx] = min(abs(gps_time_year - analysis_years(i)));
         
-        % Plot 2: RMSE distribution
-        figure('Position', [100, 200, 800, 400]);
-        histogram(rmse_values, 20);
-        title('Distribution of RMSE Values');
-        xlabel('RMSE (mm)');
-        ylabel('Number of Stations');
-        grid on;
-        saveas(gcf, fullfile(config.output_dir, 'rmse_distribution.png'));
+        % Find closest grid point to GPS station
+        [~, lat_idx] = min(abs(lat_vec - lat_gps(j)));
+        [~, lon_idx] = min(abs(lon_vec - lon_gps(j)));
         
-        % Plot 3: Seasonal amplitude comparison
-        figure('Position', [100, 300, 800, 400]);
-        scatter(amplitude_ratios, correlations, 100, 'filled');
-        xlabel('Amplitude Ratio (GRACE/GPS)');
-        ylabel('Correlation Coefficient');
-        title('Seasonal Amplitude vs. Correlation');
-        grid on;
-        saveas(gcf, fullfile(config.output_dir, 'amplitude_vs_correlation.png'));
-        
-        close all;  % Clean up figures
+        % Assign GPS value to nearest grid point
+        if gps_time_idx <= length(gps_data{j})
+            gps_field(lat_idx, lon_idx) = gps_data{j}(gps_time_idx) * 1000; % mm
+        end
     end
     
+    % Calculate difference (GPS - GRACE) where GPS data exists
+    diff_field = nan(size(lat_grid));
+    for j = 1:n_valid_stations
+        [~, lat_idx] = min(abs(lat_vec - lat_gps(j)));
+        [~, lon_idx] = min(abs(lon_vec - lon_gps(j)));
+        
+        % Find GPS value for this year
+        gps_time_year = mjd2decyear(time_mjd_gps{j});
+        [~, gps_time_idx] = min(abs(gps_time_year - analysis_years(i)));
+        
+        if gps_time_idx <= length(gps_data{j})
+            grace_val = grace_field(lat_idx, lon_idx);
+            gps_val = gps_data{j}(gps_time_idx) * 1000;
+            diff_field(lat_idx, lon_idx) = gps_val - grace_val;
+        end
+    end
+    
+    % Create surface plot of GRACE field as background
+    surf(lon_grid, lat_grid, grace_field, 'EdgeColor', 'none', 'FaceAlpha', 0.7);
+    hold on;
+    
+    % Overlay GPS-GRACE differences as colored circles
+    for j = 1:n_valid_stations
+        % Find GPS value for this year
+        gps_time_year = mjd2decyear(time_mjd_gps{j});
+        [~, gps_time_idx] = min(abs(gps_time_year - analysis_years(i)));
+        
+        if gps_time_idx <= length(gps_data{j})
+            [~, lat_idx] = min(abs(lat_vec - lat_gps(j)));
+            [~, lon_idx] = min(abs(lon_vec - lon_gps(j)));
+            
+            grace_val = grace_field(lat_idx, lon_idx);
+            gps_val = gps_data{j}(gps_time_idx) * 1000;
+            diff_val = gps_val - grace_val;
+            
+            % Color-code the difference
+            if abs(diff_val) < 2
+                marker_color = 'g'; % Green for good agreement
+            elseif abs(diff_val) < 5
+                marker_color = 'y'; % Yellow for moderate difference
+            else
+                marker_color = 'r'; % Red for large difference
+            end
+            
+            plot3(lon_gps(j), lat_gps(j), max(grace_field(:)) + 1, 'o', ...
+                  'MarkerSize', 10, 'MarkerFaceColor', marker_color, ...
+                  'MarkerEdgeColor', 'k', 'LineWidth', 2);
+            
+            % Add difference value as text
+            text(lon_gps(j), lat_gps(j), max(grace_field(:)) + 2, ...
+                 sprintf('%.1f', diff_val), 'FontSize', 8, 'FontWeight', 'bold', ...
+                 'HorizontalAlignment', 'center');
+        end
+    end
+    
+    % Format plot
+    title(sprintf('Year %d', analysis_years(i)), 'FontSize', 14, 'FontWeight', 'bold');
+    xlabel('Longitude (°)', 'FontSize', 12);
+    ylabel('Latitude (°)', 'FontSize', 12);
+    zlabel('Deformation (mm)', 'FontSize', 12);
+    
+    % Set colormap for GRACE background
+    colormap(subplot(1, n_years, i), 'RdBu');
+    caxis([-max(abs(grace_field(:))), max(abs(grace_field(:)))]);
+    
+    % Add colorbar
+    cb = colorbar;
+    cb.Label.String = 'GRACE Deformation (mm)';
+    cb.Label.FontSize = 10;
+    
+    % Set view angle
+    view(2); % Top view
+    
+    % Add grid
+    grid on;
+    
+    hold off;
+end
+
+% Add overall title and legend
+sgtitle('Spatial Distribution of Vertical Deformation (GPS vs GRACE)', ...
+        'FontSize', 16, 'FontWeight', 'bold');
+
+% Add custom legend for GPS-GRACE difference markers
+legend_ax = axes('Position', [0.02, 0.02, 0.15, 0.15], 'Visible', 'off');
+hold(legend_ax, 'on');
+plot(legend_ax, 0, 3, 'og', 'MarkerSize', 8, 'MarkerFaceColor', 'g', 'MarkerEdgeColor', 'k');
+plot(legend_ax, 0, 2, 'oy', 'MarkerSize', 8, 'MarkerFaceColor', 'y', 'MarkerEdgeColor', 'k');
+plot(legend_ax, 0, 1, 'or', 'MarkerSize', 8, 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'k');
+text(legend_ax, 0.5, 3, '|GPS-GRACE| < 2mm', 'FontSize', 8);
+text(legend_ax, 0.5, 2, '|GPS-GRACE| < 5mm', 'FontSize', 8);
+text(legend_ax, 0.5, 1, '|GPS-GRACE| ≥ 5mm', 'FontSize', 8);
+set(legend_ax, 'XLim', [0, 3], 'YLim', [0, 4]);
+
+% Save high-resolution plot
+print(fullfile(config.output_dir, 'spatial_differences_5year.png'), '-dpng', '-r300');
+print(fullfile(config.output_dir, 'spatial_differences_5year.eps'), '-depsc', '-r300');
+
+fprintf('  Created spatial difference maps for years: %s\n', mat2str(analysis_years));
 fprintf('  Step 8 completed in %.2f seconds\n\n', toc(step8_start));
 
 %% Analysis completion
