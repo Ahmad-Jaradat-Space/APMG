@@ -42,7 +42,6 @@ addpath(fullfile(pwd, 'functions'));
 addpath(fullfile(pwd, 'lib', 'spherical_harmonics'));
 addpath(fullfile(pwd, 'lib', 'time_utils'));
 addpath(fullfile(pwd, 'lib', 'statistics'));
-addpath(fullfile(pwd, 'lib', 'gps_processing'));
 
 %% Configuration parameters
 config = struct();
@@ -148,7 +147,6 @@ try
                 
                 if ~isnan(lat_val) && ~isnan(lon_val)
                     station_map(station_id) = [lat_val, lon_val];
-                    fprintf('    Loaded %s: %.3f°N, %.3f°W\n', station_id, lat_val, abs(lon_val));
                 end
             end
         end
@@ -187,8 +185,6 @@ try
                 gps_struct = load_tenv3(station_file);
                 
                 if ~isempty(gps_struct) && isfield(gps_struct, 't') && isfield(gps_struct, 'up') && length(gps_struct.t) > 50  % Minimum 50 observations
-                    fprintf('    Station %s: loaded %d observations\n', station_names{i}, length(gps_struct.t));
-                    
                     % Extract vertical component and time from structure
                     time_mjd_gps{i} = gps_struct.t;   % MJD time
                     elevation = gps_struct.up;        % Vertical component (meters)
@@ -204,19 +200,11 @@ try
                     
                     gps_data{i} = elevation_detrended;
                     valid_stations(i) = true;
-                    fprintf('    Station %s: successfully validated\n', station_names{i});
-                    
-                    if mod(i, 10) == 0 || i == n_stations
-                        fprintf('    Processed %d/%d stations\n', i, n_stations);
-                    end
                 end
-            else
-                fprintf('    Station %s: file not found\n', station_names{i});
             end
             
         catch ME
             % Skip problematic stations
-            fprintf('    Station %s: ERROR - %s\n', station_names{i}, ME.message);
             valid_stations(i) = false;
         end
     end
@@ -306,10 +294,6 @@ try
         u_vertical = graceToVerticalDeformation(cnm, snm, theta_grid, lambda_grid, h_n, k_n);
         
         u_vertical_ts(:, :, t) = u_vertical;
-        
-        if mod(t, 12) == 0 || t == n_months
-            fprintf('    Processed %d/%d time steps (%.1f%%)\n', t, n_months, 100*t/n_months);
-        end
     end
     
     fprintf('  Step 4 completed in %.2f seconds\n\n', toc(step4_start));
@@ -360,10 +344,6 @@ try
         % Perform statistical comparison
         stats = compareTimeSeries(gps_ts, grace_ts, time_gps, time_grace);
         comparison_stats{i} = stats;
-        
-        if mod(i, 5) == 0 || i == n_valid_stations
-            fprintf('    Completed %d/%d stations\n', i, n_valid_stations);
-        end
     end
     
     fprintf('  Step 6 completed in %.2f seconds\n\n', toc(step6_start));
@@ -464,8 +444,6 @@ try
     
     % Generate visualizations if requested
     if config.generate_plots
-        fprintf('  Creating visualization plots...\n');
-        
         % Plot 1: Correlation map
         figure('Position', [100, 100, 800, 600]);
         scatter(lon_gps, lat_gps, 100, correlations, 'filled');
