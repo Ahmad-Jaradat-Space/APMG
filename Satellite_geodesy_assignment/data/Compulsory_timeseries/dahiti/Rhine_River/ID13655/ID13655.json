@@ -1,0 +1,240 @@
+{
+    "status": "OK",
+    "message": [],
+    "target": {
+        "id": "13655",
+        "target_name": "Rhine, River",
+        "continent": "Europe",
+        "country": "Germany",
+        "longitude": 8.4576,
+        "latitude": 49.4637,
+        "points": 37,
+        "software": "7.0",
+        "download": "2022-09-16 15:21:43",
+        "data": [
+            {
+                "date": "2016-03-23",
+                "height": 87.963,
+                "error": 0.3591,
+                "data_type": "OP"
+            },
+            {
+                "date": "2016-06-12",
+                "height": 91.228,
+                "error": 0.3566,
+                "data_type": "OP"
+            },
+            {
+                "date": "2016-09-01",
+                "height": 88.126,
+                "error": 0.3289,
+                "data_type": "OP"
+            },
+            {
+                "date": "2016-10-25",
+                "height": 87.276,
+                "error": 0.2486,
+                "data_type": "OP"
+            },
+            {
+                "date": "2016-12-18",
+                "height": 87.037,
+                "error": 0.1115,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-01-14",
+                "height": 87.139,
+                "error": 0.1143,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-04-05",
+                "height": 87.729,
+                "error": 0.1967,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-05-02",
+                "height": 87.912,
+                "error": 0.608,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-06-25",
+                "height": 87.985,
+                "error": 0.0107,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-10-11",
+                "height": 88.331,
+                "error": 0.2412,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-11-07",
+                "height": 87.784,
+                "error": 0.0092,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-01-27",
+                "height": 91.625,
+                "error": 0.3104,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-04-18",
+                "height": 88.314,
+                "error": 0.2231,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-06-11",
+                "height": 89.037,
+                "error": 0.2767,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-07-08",
+                "height": 88.357,
+                "error": 0.2347,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-10-24",
+                "height": 86.772,
+                "error": 0.1635,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-11-20",
+                "height": 86.32,
+                "error": 0.2198,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-02-09",
+                "height": 87.477,
+                "error": 0.2801,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-05-01",
+                "height": 88.217,
+                "error": 0.2309,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-05-28",
+                "height": 89.508,
+                "error": 0.2402,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-07-21",
+                "height": 87.979,
+                "error": 0.2278,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-10-10",
+                "height": 88.582,
+                "error": 0.1785,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-11-06",
+                "height": 88.949,
+                "error": 0.0201,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-12-30",
+                "height": 89.155,
+                "error": 0.1813,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-01-26",
+                "height": 87.252,
+                "error": 0.0337,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-04-16",
+                "height": 87.385,
+                "error": 0.2367,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-05-13",
+                "height": 88.483,
+                "error": 0.2381,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-08-02",
+                "height": 87.669,
+                "error": 0.2429,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-08-29",
+                "height": 86.979,
+                "error": 0.2458,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-10-22",
+                "height": 87.644,
+                "error": 0.0039,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-04-29",
+                "height": 87.16,
+                "error": 0.1235,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-05-26",
+                "height": 88.617,
+                "error": 0.6321,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-06-22",
+                "height": 89.127,
+                "error": 0.1471,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-07-19",
+                "height": 92.502,
+                "error": 0.1164,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-10-08",
+                "height": 87.449,
+                "error": 0.2194,
+                "data_type": "OP"
+            },
+            {
+                "date": "2022-04-15",
+                "height": 88.184,
+                "error": 0.0491,
+                "data_type": "OP"
+            },
+            {
+                "date": "2022-05-12",
+                "height": 87.551,
+                "error": 0.0917,
+                "data_type": "OP"
+            }
+        ],
+        "location": "Ludwigshafen"
+    }
+}

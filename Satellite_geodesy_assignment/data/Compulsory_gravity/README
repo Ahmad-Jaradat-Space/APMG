@@ -1,0 +1,14 @@
+Compolsory exercise: data files
+
+GRS80.txt : Fully normalized Stokes coefficients for the GRS80 Ellipsoid (maximum Spherical Harmonic degree 8). 
+column1: degree n, column2: order m, column3: cnm coefficient, column4: snm coefficient
+
+ITSG-Grace2018.txt : Fully normalized Stokes coefficients for the ITSG GRACE 2018 static gravity field (maximum SH degree 100).
+column1: degree n, column2: order m, column3: cnm coefficient, column4: snm coefficient
+
+acos.txt, asin.txt: Fully normalized Stokes coefficients containing an extra signal.
+column1: degree n, column2: order m, column3: cnm coefficient, column4: snm coefficient
+
+coast.txt: Coastline segments in longitude/latitude, to fancy up plots.
+
+

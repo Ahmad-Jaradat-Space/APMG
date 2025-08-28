@@ -1,0 +1,138 @@
+{
+    "status": "OK",
+    "message": [],
+    "target": {
+        "id": "13585",
+        "target_name": "Rhine, River",
+        "continent": "Europe",
+        "country": "Germany",
+        "longitude": 6.45,
+        "latitude": 51.7062,
+        "points": 20,
+        "software": "7.0",
+        "download": "2022-09-16 15:21:46",
+        "data": [
+            {
+                "date": "2019-01-17",
+                "height": 14.964,
+                "error": 0.1653,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-03-12",
+                "height": 13.404,
+                "error": 0.8855,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-07-25",
+                "height": 11.457,
+                "error": 0.1943,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-08-21",
+                "height": 11.979,
+                "error": 0.1183,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-12-07",
+                "height": 12.538,
+                "error": 0.9115,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-02-26",
+                "height": 15.24,
+                "error": 0.141,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-04-20",
+                "height": 11.848,
+                "error": 0.6534,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-05-17",
+                "height": 12.639,
+                "error": 0.7198,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-06-13",
+                "height": 11.65,
+                "error": 0.3938,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-07-10",
+                "height": 12.269,
+                "error": 0.0724,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-08-06",
+                "height": 11.163,
+                "error": 0.0102,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-10-26",
+                "height": 11.425,
+                "error": 0.0742,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-12-19",
+                "height": 11.903,
+                "error": 0.287,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-03-10",
+                "height": 14.728,
+                "error": 0.6025,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-05-30",
+                "height": 14.501,
+                "error": 0.1224,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-06-26",
+                "height": 13.718,
+                "error": 0.1758,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-07-23",
+                "height": 16.241,
+                "error": 0.0156,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-08-19",
+                "height": 14.954,
+                "error": 0.0329,
+                "data_type": "OP"
+            },
+            {
+                "date": "2022-01-01",
+                "height": 14.398,
+                "error": 0.2476,
+                "data_type": "OP"
+            },
+            {
+                "date": "2022-08-05",
+                "height": 11.038,
+                "error": 0.5176,
+                "data_type": "OP"
+            }
+        ],
+        "location": "Wardt"
+    }
+}

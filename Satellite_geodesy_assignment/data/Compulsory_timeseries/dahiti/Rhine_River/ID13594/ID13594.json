@@ -1,0 +1,444 @@
+{
+    "status": "OK",
+    "message": [],
+    "target": {
+        "id": "13594",
+        "target_name": "Rhine, River",
+        "continent": "Europe",
+        "country": "Germany",
+        "longitude": 7.3022,
+        "latitude": 50.5129,
+        "points": 71,
+        "software": "7.0",
+        "download": "2022-09-16 15:21:41",
+        "data": [
+            {
+                "date": "2016-06-10",
+                "height": 53.808,
+                "error": 0.0647,
+                "data_type": "OP"
+            },
+            {
+                "date": "2016-07-07",
+                "height": 52.595,
+                "error": 0.0866,
+                "data_type": "OP"
+            },
+            {
+                "date": "2016-08-30",
+                "height": 50.58,
+                "error": 0.041,
+                "data_type": "OP"
+            },
+            {
+                "date": "2016-09-26",
+                "height": 49.692,
+                "error": 0.0117,
+                "data_type": "OP"
+            },
+            {
+                "date": "2016-10-23",
+                "height": 49.843,
+                "error": 0.0893,
+                "data_type": "OP"
+            },
+            {
+                "date": "2016-11-19",
+                "height": 50.673,
+                "error": 0.0123,
+                "data_type": "OP"
+            },
+            {
+                "date": "2016-12-16",
+                "height": 49.721,
+                "error": 0.0566,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-01-12",
+                "height": 49.561,
+                "error": 0.009,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-02-08",
+                "height": 51.536,
+                "error": 0.0186,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-03-07",
+                "height": 52.291,
+                "error": 0.0281,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-05-27",
+                "height": 50.763,
+                "error": 0.0051,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-06-23",
+                "height": 50.394,
+                "error": 0.0888,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-07-20",
+                "height": 49.915,
+                "error": 0.1018,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-08-16",
+                "height": 50.99,
+                "error": 0.0466,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-09-12",
+                "height": 50.014,
+                "error": 0.1029,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-10-09",
+                "height": 50.806,
+                "error": 0.0318,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-11-05",
+                "height": 49.914,
+                "error": 0.2397,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-12-02",
+                "height": 52.447,
+                "error": 0.0611,
+                "data_type": "OP"
+            },
+            {
+                "date": "2017-12-29",
+                "height": 52.684,
+                "error": 0.0991,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-01-25",
+                "height": 55.25,
+                "error": 0.184,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-02-21",
+                "height": 52.57,
+                "error": 0.0057,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-03-20",
+                "height": 51.96,
+                "error": 0.0335,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-04-16",
+                "height": 51.498,
+                "error": 0.016,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-05-13",
+                "height": 50.549,
+                "error": 0.0177,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-06-09",
+                "height": 51.315,
+                "error": 0.0094,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-07-06",
+                "height": 49.782,
+                "error": 0.0482,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-08-02",
+                "height": 49.474,
+                "error": 0.0271,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-08-29",
+                "height": 49.539,
+                "error": 0.0352,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-09-25",
+                "height": 49.621,
+                "error": 0.0572,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-10-22",
+                "height": 49.143,
+                "error": 0.0844,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-11-18",
+                "height": 49.065,
+                "error": 0.0012,
+                "data_type": "OP"
+            },
+            {
+                "date": "2018-12-15",
+                "height": 50.745,
+                "error": 0.0678,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-01-11",
+                "height": 51.185,
+                "error": 0.0371,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-02-07",
+                "height": 50.951,
+                "error": 0.0222,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-05-26",
+                "height": 52.36,
+                "error": 0.052,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-06-22",
+                "height": 50.844,
+                "error": 0.0761,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-07-19",
+                "height": 50.452,
+                "error": 0.023,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-08-15",
+                "height": 50.79,
+                "error": 0.014,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-09-11",
+                "height": 49.822,
+                "error": 0.0462,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-10-08",
+                "height": 50.313,
+                "error": 0.0139,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-11-04",
+                "height": 50.917,
+                "error": 0.0166,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-12-01",
+                "height": 50.946,
+                "error": 0.0347,
+                "data_type": "OP"
+            },
+            {
+                "date": "2019-12-28",
+                "height": 53.31,
+                "error": 0.0366,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-01-24",
+                "height": 50.16,
+                "error": 0.0127,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-02-20",
+                "height": 53.269,
+                "error": 0.0578,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-03-18",
+                "height": 52.966,
+                "error": 0.0229,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-06-07",
+                "height": 49.952,
+                "error": 0.0676,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-07-04",
+                "height": 50.634,
+                "error": 0.0625,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-07-31",
+                "height": 49.955,
+                "error": 0.0407,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-08-27",
+                "height": 49.856,
+                "error": 0.0054,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-09-23",
+                "height": 49.617,
+                "error": 0.0237,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-10-20",
+                "height": 50.386,
+                "error": 0.0455,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-11-16",
+                "height": 49.953,
+                "error": 0.0102,
+                "data_type": "OP"
+            },
+            {
+                "date": "2020-12-13",
+                "height": 49.963,
+                "error": 0.0211,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-01-09",
+                "height": 50.46,
+                "error": 0.0573,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-02-05",
+                "height": 57.107,
+                "error": 0.0011,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-03-04",
+                "height": 51.158,
+                "error": 0.0234,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-05-24",
+                "height": 52.599,
+                "error": 0.0163,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-06-20",
+                "height": 51.415,
+                "error": 0.0366,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-07-17",
+                "height": 55.811,
+                "error": 0.0226,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-09-09",
+                "height": 50.816,
+                "error": 0.074,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-10-06",
+                "height": 50.097,
+                "error": 0.1049,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-11-29",
+                "height": 50.057,
+                "error": 0.0272,
+                "data_type": "OP"
+            },
+            {
+                "date": "2021-12-26",
+                "height": 50.438,
+                "error": 0.1005,
+                "data_type": "OP"
+            },
+            {
+                "date": "2022-02-18",
+                "height": 52.112,
+                "error": 0.022,
+                "data_type": "OP"
+            },
+            {
+                "date": "2022-04-13",
+                "height": 52.598,
+                "error": 0.0374,
+                "data_type": "OP"
+            },
+            {
+                "date": "2022-05-10",
+                "height": 50.556,
+                "error": 0.0653,
+                "data_type": "OP"
+            },
+            {
+                "date": "2022-06-06",
+                "height": 50.303,
+                "error": 0.0812,
+                "data_type": "OP"
+            },
+            {
+                "date": "2022-07-03",
+                "height": 50.239,
+                "error": 0.0927,
+                "data_type": "OP"
+            },
+            {
+                "date": "2022-07-30",
+                "height": 49.527,
+                "error": 0.0095,
+                "data_type": "OP"
+            },
+            {
+                "date": "2022-08-26",
+                "height": 49.424,
+                "error": 0.0806,
+                "data_type": "OP"
+            }
+        ],
+        "location": "Bad H\u00f6nningen"
+    }
+}
