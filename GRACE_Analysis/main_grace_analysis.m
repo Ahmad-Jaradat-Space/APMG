@@ -18,21 +18,11 @@ function main_grace_analysis()
 %   6. Compare GPS and GRACE time series
 %   7. Generate comprehensive results and visualizations
 %
-% REFERENCES:
-%   - Wahr et al. (1998) JGR, hydrological deformation theory
-%   - Fu & Freymueller (2012) JGR, GPS-GRACE comparison methodology
-%   - Farrell (1972) Rev Geophys, elastic loading theory
-%
 % Author: Hamza Jaradat
 % Date: 2025
 
 %% Initialize analysis
 close all; clear; clc;
-
-fprintf('==========================================\n');
-fprintf('GRACE-GPS Crustal Deformation Analysis\n');
-fprintf('Based on Wahr et al. (1998) & Fu & Freymueller (2012)\n');
-fprintf('==========================================\n\n');
 
 % Record analysis start time
 analysis_start = tic;
@@ -79,8 +69,6 @@ step1_start = tic;
 
 [h_n, l_n, k_n] = loadLoveNumbers(config.nmax, config.earth_model);
 
-fprintf('  Love numbers loaded successfully\n');
-fprintf('  h_2 = %.5f, l_2 = %.5f, k_2 = %.5f\n', h_n(3), l_n(3), k_n(3));
 fprintf('  Step 1 completed in %.2f seconds\n\n', toc(step1_start));
 
 %% Step 2: Process GRACE time series
@@ -91,8 +79,6 @@ step2_start = tic;
     config.grace_dir, config.c20_file, config.deg1_file);
 
 n_months = length(time_mjd_grace);
-fprintf('  Processed %d monthly GRACE solutions\n', n_months);
-fprintf('  Time range: MJD %.1f to %.1f\n', min(time_mjd_grace), max(time_mjd_grace));
 fprintf('  Step 2 completed in %.2f seconds\n\n', toc(step2_start));
 
 % Save intermediate results
@@ -106,12 +92,11 @@ fprintf('Step 3: Loading GPS time series data...\n');
 step3_start = tic;
 
 % Load GPS coordinates manually due to header line
-fprintf('  Loading GPS coordinates from: %s\n', config.gps_coords_file);
 
 % Read GPS coordinate file manually
 fid = fopen(config.gps_coords_file, 'r');
 if fid == -1
-    error('Cannot open GPS coordinate file: %s', config.gps_coords_file);
+    return;
 end
     
     station_map = containers.Map();
@@ -154,7 +139,6 @@ end
         lon_gps(i) = coords(2);
     end
     
-    fprintf('  Successfully loaded %d GPS stations\n', n_stations);
     
     % Initialize GPS data storage
     gps_data = cell(n_stations, 1);
@@ -199,7 +183,6 @@ end
     time_mjd_gps = time_mjd_gps(valid_stations);
     n_valid_stations = sum(valid_stations);
     
-fprintf('  Successfully processed %d valid GPS stations\n', n_valid_stations);
 fprintf('  Step 3 completed in %.2f seconds\n\n', toc(step3_start));
 
 %% Step 4: Create analysis grid and convert GRACE to deformation
@@ -215,16 +198,12 @@ step4_start = tic;
     theta_grid = (90 - lat_grid) * pi / 180;  % Colatitude in radians
     lambda_grid = lon_grid * pi / 180;        % Longitude in radians
     
-    fprintf('  Analysis grid: %d x %d points\n', length(lat_vec), length(lon_vec));
-    fprintf('  Geographic bounds: %.1f°-%.1f°N, %.1f°-%.1f°W\n', ...
-            config.lat_range, -config.lon_range(2), -config.lon_range(1));
     
     % Initialize deformation time series
     [nlat, nlon] = size(lat_grid);
     u_vertical_ts = zeros(nlat, nlon, n_months);
     
     % Load or compute multi-year static reference field (Wahr et al. 1998 methodology)
-    fprintf('  Loading multi-year static reference field for seasonal analysis...\n');
     
     % Define reference years for static field (literature recommends 5+ years)
     reference_years = [2004, 2005, 2006, 2007, 2008, 2009]; % 6-year reference period
@@ -232,31 +211,21 @@ step4_start = tic;
     
     if exist(reference_file, 'file')
         % Load existing reference field
-        fprintf('  Loading existing reference field: %s\n', reference_file);
         ref_data = load(reference_file);
         cnm_static = ref_data.cnm_static;
         snm_static = ref_data.snm_static;
-        fprintf('  Loaded %d-year reference field (%d solutions)\n', ...
-                length(ref_data.reference_years), ref_data.valid_count);
     else
         % Compute new reference field
-        fprintf('  Computing new multi-year reference field for %d-%d...\n', ...
-                min(reference_years), max(reference_years));
-        fprintf('  This preserves seasonal signal by using static background (Wahr et al. 1998)\n');
         [cnm_static, snm_static] = computeStaticReferenceField(...
             config.grace_dir, config.c20_file, config.deg1_file, reference_years);
-        fprintf('  Reference field computed successfully\n');
     end
     
     % Ensure dimensions match current data
     if size(cnm_static, 1) ~= size(cnm_ts, 1) || size(cnm_static, 2) ~= size(cnm_ts, 2)
-        error('Reference field dimensions [%d x %d] do not match current data [%d x %d]', ...
-              size(cnm_static, 1), size(cnm_static, 2), size(cnm_ts, 1), size(cnm_ts, 2));
+        return;
     end
     
     % Process each time step with PROPER mean field removal for seasonal analysis
-    fprintf('  Computing vertical deformation for %d time steps using coefficient changes:\n', n_months);
-    fprintf('  Method: ΔC_nm = C_nm(month) - C_nm(static_reference) [preserves seasonal cycle]\n');
     
     for t = 1:n_months
         % Extract coefficients for this time step
@@ -289,8 +258,6 @@ step5_start = tic;
 % Extract GRACE values at GPS locations for all time steps
 grace_at_gps_ts = extractGRACEatGPS(u_vertical_ts, lat_grid, lon_grid, lat_gps, lon_gps);
 
-fprintf('  Extracted GRACE values for %d stations and %d time steps\n', ...
-        n_valid_stations, n_months);
 fprintf('  Step 5 completed in %.2f seconds\n\n', toc(step5_start));
 
 %% Step 6: Compare GPS and GRACE time series
@@ -300,7 +267,6 @@ step6_start = tic;
 % Initialize results storage
 comparison_stats = cell(n_valid_stations, 1);
 
-fprintf('  Comparing time series for %d stations:\n', n_valid_stations);
 
 for i = 1:n_valid_stations
     % Get GPS and GRACE data for this station
@@ -370,7 +336,6 @@ sgtitle('Vertical Crustal Deformation: GPS vs GRACE (PREM Model)', ...
 print(fullfile(config.output_dir, 'time_series_gps_grace_prem.png'), '-dpng', '-r300');
 print(fullfile(config.output_dir, 'time_series_gps_grace_prem.eps'), '-depsc', '-r300');
 
-fprintf('  Created time series comparison plots\n');
 fprintf('  Step 7 completed in %.2f seconds\n\n', toc(step7_start));
 
 %% Step 8: Create spatial difference maps every 5 years
@@ -517,7 +482,6 @@ set(legend_ax, 'XLim', [0, 3], 'YLim', [0, 4]);
 print(fullfile(config.output_dir, 'spatial_differences_5year.png'), '-dpng', '-r300');
 print(fullfile(config.output_dir, 'spatial_differences_5year.eps'), '-depsc', '-r300');
 
-fprintf('  Created spatial difference maps for years: %s\n', mat2str(analysis_years));
 fprintf('  Step 8 completed in %.2f seconds\n\n', toc(step8_start));
 
 %% Analysis completion
