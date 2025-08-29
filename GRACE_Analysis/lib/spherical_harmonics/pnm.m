@@ -30,21 +30,7 @@ function y = pnm(n,teta,dm)
 %     [2] J. A. Jacobs, "Geomagnetism", Academic Press, 1987, Ch.4.
 
 
-if nargin < 3
-    error('Not enough input arguments')
-elseif nargin > 3
-    error('Too many input arguments')    
-end
-
-if numel(n) > 1 || ~isreal(n) || n < 0 || n ~= round(n)
-    error('N must be a positive scalar integer');
-end
-
 x=cosd(teta);
-if ~isreal(x) | max(abs(x)) > 1 | ischar(x)
-    error('X must be real and in the range (-1,1)')
-end
-
 classin = superiorfloat(x);
 
 % The n = 0 case
@@ -172,8 +158,6 @@ y=[zeros(1,max(size(teta)));y(2,:).*(-1);y(1,:)];
 elseif dm==-2 && n >1
 y=[y(3,:);y(2,:).*(-1);y(1:end-1,:)];
 
-else 
-    error('Incorrect dm')
 end
 
 end

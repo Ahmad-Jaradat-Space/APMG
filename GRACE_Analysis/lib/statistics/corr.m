@@ -83,10 +83,6 @@ function [coef, pval] = corr(x, varargin)
 %   p-value in such cases is not well-defined.  CORR computes p-values for
 %   the two-tailed test by doubling the smaller of the one-tailed p-values.
 
-if nargin < 1 || isempty(x)
-    error('stats:corr:TooFewInputs', ...
-          'Requires a data matrix X.');
-end
 [n,p1] = size(x);
 
 % Only x given, compute pairwise rank correlations

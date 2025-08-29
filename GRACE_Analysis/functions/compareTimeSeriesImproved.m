@@ -39,14 +39,6 @@ time_final = time_common(common_valid);
 
 n_common = length(gps_common);
 
-if n_common < 5
-    warning('Insufficient overlapping data points (%d) for reliable statistics', n_common);
-    stats = struct('n_common', n_common, 'correlation', NaN, 'rmse', NaN, ...
-                   'bias', NaN, 'nse', NaN, 'amplitude_gps', NaN, ...
-                   'amplitude_grace', NaN, 'amplitude_ratio', NaN, 'best_lag_months', 0);
-    return;
-end
-
 % Basic statistics
 stats.n_common = n_common;
 stats.bias = mean(grace_common - gps_common);

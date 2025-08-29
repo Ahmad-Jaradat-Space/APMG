@@ -13,18 +13,8 @@ function gps_filtered = lowPassFilterGPS(gps_ts, time_gps)
 % Output:
 %   gps_filtered - Low-pass filtered GPS time series
 
-% Check for sufficient data
-if length(gps_ts) < 50
-    warning('GPS time series too short for reliable filtering');
-    gps_filtered = gps_ts;
-    return;
-end
-
 % Remove NaN values and interpolate gaps < 7 days
 valid_mask = ~isnan(gps_ts);
-if sum(valid_mask) < 0.8 * length(gps_ts)
-    warning('GPS time series has too many gaps (>20%%)');
-end
 
 % Interpolate short gaps
 gps_clean = gps_ts;
@@ -75,22 +65,9 @@ fs = 1 / dt_median;  % samples per day
 fc = 12 / 365.25;  % cutoff frequency (cycles per day)
 fn = fc / (fs/2);  % normalized frequency
 
-% Ensure normalized frequency is valid
-if fn >= 1
-    warning('Cutoff frequency too high relative to sampling rate');
-    fn = 0.9;  % Use 90% of Nyquist
-end
+[b, a] = butter(4, fn, 'low');  % 4th order Butterworth
 
-try
-    [b, a] = butter(4, fn, 'low');  % 4th order Butterworth
-    
-    % Apply zero-phase filtering to preserve temporal relationships
-    gps_filtered = filtfilt(b, a, gps_clean);
-    
-    
-catch ME
-    warning('Filter design failed: %s. Using unfiltered data.', ME.message);
-    gps_filtered = gps_clean;
-end
+% Apply zero-phase filtering to preserve temporal relationships
+gps_filtered = filtfilt(b, a, gps_clean);
 
 end

@@ -85,10 +85,9 @@ for i = 1:n_stations
     station_file = fullfile(gps_data_dir, sprintf('%s.tenv3', station_names{i}));
     if exist(station_file, 'file')
         gps_struct = load_tenv3(station_file);
-        if ~isempty(gps_struct) && isfield(gps_struct, 't') && isfield(gps_struct, 'up') && length(gps_struct.t) > 50
-            time_mjd_gps{i} = gps_struct.t;
-            % Process GPS data for each station
-            elevation = gps_struct.up;
+        time_mjd_gps{i} = gps_struct.t;
+        % Process GPS data for each station
+        elevation = gps_struct.up;
             
             % Special handling for P056 - two-segment linear detrending
             if strcmp(station_names{i}, 'P056')
@@ -109,7 +108,6 @@ for i = 1:n_stations
             % Store detrended GPS data
             gps_data{i} = elevation_detrended;
             valid_stations(i) = true;
-        end
     end
 end
 
@@ -180,15 +178,10 @@ for i = 1:n_valid_stations
     time_grace = time_mjd_grace;
     
     % Use improved correlation method with proper temporal alignment
-    if length(gps_ts) > 1 && length(grace_ts) > 1
-        stats = compareTimeSeriesImproved(gps_ts, time_gps, grace_ts, ...
-                                         grace_start_mjd, grace_end_mjd, time_grace);
-        correlations(i) = stats.correlation;
-        comparison_stats{i} = stats;
-    else
-        correlations(i) = NaN;
-        comparison_stats{i} = struct();
-    end
+    stats = compareTimeSeriesImproved(gps_ts, time_gps, grace_ts, ...
+                                     grace_start_mjd, grace_end_mjd, time_grace);
+    correlations(i) = stats.correlation;
+    comparison_stats{i} = stats;
 end
 
 

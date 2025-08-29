@@ -22,11 +22,6 @@ function mjd = decyear2mjd(decyear)
 % Author: GRACE Analysis Project
 % Date: 2025
 
-% Input validation
-if nargin < 1
-    error('Decimal year input required');
-end
-
 % Handle vector inputs
 if length(decyear) > 1
     mjd = zeros(size(decyear));

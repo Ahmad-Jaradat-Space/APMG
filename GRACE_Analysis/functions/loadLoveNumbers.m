@@ -4,10 +4,6 @@ function [h_n, l_n, k_n] = loadLoveNumbers(nmax, model)
 % (h, l, k), convert to load using 1 + k_tidal - h_tidal = 1 + k_load ⇒ k' = k - h.
 
 mat_path = fullfile('data','love_numbers','PREM_Love_Numbers_n60.mat');
-if ~exist(mat_path, 'file')
-    error('Love numbers MAT not found: %s. Please provide PREM load Love numbers.', mat_path);
-end
-
 S = load(mat_path);
 % Try common variable names
 candidates_h = {'h_load','h_load_n','h_prime','h_n','h'};
@@ -25,9 +21,6 @@ for fn = candidates_k
 end
 for fn = candidates_l
     if isfield(S, fn{1}), l_all = S.(fn{1}); break; end
-end
-if isempty(h_all) || isempty(k_all) || isempty(l_all)
-    error('Could not find h/k/l arrays in %s', mat_path);
 end
 
 % Column vectors and truncate/pad to nmax+1
@@ -50,16 +43,5 @@ if any(k_n(idx) > 0)
     k_n = k_n - h_n;
 end
 
-% Basic sanity check on degree-2
-deg2 = 3; % index for n=2
-if deg2 <= length(h_n)
-    % Expect h2' ~ 0.5-0.7, k2' ~ -0.45..-0.1, so 1+k2' ~ 0.3..0.9
-    if ~(h_n(deg2) > 0.4 && h_n(deg2) < 0.8)
-        warning('Suspicious h''_2 = %.3f; verify MAT content.', h_n(deg2));
-    end
-    if ~(k_n(deg2) < 0 && (1 + k_n(deg2)) > 0.2 && (1 + k_n(deg2)) < 1.2)
-        warning('Suspicious k''_2 = %.3f; transformed to load? Verify inputs.', k_n(deg2));
-    end
-end
 
 end
