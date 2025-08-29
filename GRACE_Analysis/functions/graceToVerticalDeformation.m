@@ -7,12 +7,13 @@ lambda_vec = lambda(1, :);
 cosm = cos([0:nmax]' * lambda_vec);
 sinm = sin([0:nmax]' * lambda_vec);
 for i = 1:nlat
-    current_theta_deg = theta(i, 1) * 180/pi;
-    Pnm_matrix = Legendree(current_theta_deg, nmax);
+    theta_deg = theta(i, 1) * 180/pi;
+    lat_deg = 90 - theta_deg; % Convert colatitude to latitude
+    Pnm_matrix = pnm(lat_deg, nmax);
     deformation_lat = zeros(1, nlon);
     for n = 1:nmax
-        % FIXED: Add (2n+1) factor for proper degree weighting
-        love_weight = (2*n + 1) * h_n(n+1) / (1 + k_n(n+1));
+        % Test normalization: use hn/(1+kn) only with pnm
+        love_weight = h_n(n+1) / (1 + k_n(n+1));
         for m = 0:n
             c_nm = cnm(n+1, m+1);
             s_nm = snm(n+1, m+1);
