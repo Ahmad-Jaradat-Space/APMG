@@ -12,8 +12,6 @@ earth_model = 'PREM';
 % Data paths
 grace_dir = 'data/grace';
 c20_file = 'data/aux/C20_RL05.txt';
-% NOTE: For RL06 products, prefer TN-11E/TN-14 data for C20/C30 replacements
-% and TN-13 degree-1 series.
 deg1_file = 'data/aux/deg1_coef.txt';
 
 gps_data_dir = 'data/gps';
@@ -32,7 +30,7 @@ end
 
 fprintf('Step 1: Loading Love numbers (%s model)...\n', earth_model);
 step1_start = tic;
-[h_n, l_n, k_n] = loadLoveNumbers(nmax, earth_model);
+[h_n, ~, k_n] = loadLoveNumbers(nmax, earth_model);
 fprintf('  Step 1 completed in %.2f seconds\n\n', toc(step1_start));
 
 fprintf('Step 2: Processing GRACE coefficient files...\n');
@@ -40,23 +38,6 @@ step2_start = tic;
 [cnm_ts, snm_ts, time_mjd_grace, grace_start_mjd, grace_end_mjd] = processGRACEfiles(grace_dir, c20_file, deg1_file);
 n_months = length(time_mjd_grace);
 
-% Coefficient magnitude validation
-cnm_mean = mean(cnm_ts, 3);
-snm_mean = mean(snm_ts, 3);
-cnm_delta_example = cnm_ts(:,:,round(n_months/2)) - cnm_mean;
-snm_delta_example = snm_ts(:,:,round(n_months/2)) - snm_mean;
-max_cnm_delta = max(abs(cnm_delta_example(:)));
-max_snm_delta = max(abs(snm_delta_example(:)));
-
-fprintf('  Coefficient validation:\n');
-fprintf('    Max |Cnm delta|: %.2e\n', max_cnm_delta);
-fprintf('    Max |Snm delta|: %.2e\n', max_snm_delta);
-fprintf('    C20 delta: %.2e\n', cnm_delta_example(3,1));
-fprintf('    C22 delta: %.2e\n', cnm_delta_example(3,3));
-
-if max_cnm_delta < 1e-10 || max_snm_delta < 1e-10
-    warning('Coefficients approaching machine precision - results may be unreliable');
-end
 
 fprintf('  Step 2 completed in %.2f seconds\n\n', toc(step2_start));
 
@@ -123,10 +104,6 @@ for i = 1:n_stations
                 poly_result = fitPiecewiseLinear(time_decyear, elevation, break_point_decyear);
                 elevation_detrended = poly_result.v;
                 
-                fprintf('P056: Applied two-segment detrending\n');
-                fprintf('  Break: %.3f (%.3f)\n', break_point_decyear, poly_result.break_point);
-                fprintf('  Slope1: %.3f mm/yr, Slope2: %.3f mm/yr\n', ...
-                    poly_result.slope1*1000, poly_result.slope2*1000);
             else
                 % Regular polynomial detrending for other stations
                 poly_result = fitPolynomial(time_mjd_gps{i}, elevation, 1, 0.001);
@@ -176,9 +153,6 @@ for t = 1:n_months
     u_vertical = graceToVerticalDeformation(cnm_delta, snm_delta, theta_grid, lambda_grid, h_n, k_n);
     u_vertical_ts(:, :, t) = u_vertical; % meters
 
-    if mod(t, 12) == 0 || t == n_months
-        fprintf('    Processed %d/%d time steps (%.1f%%)\n', t, n_months, 100*t/n_months);
-    end
 end
 
 fprintf('  Step 4 completed in %.2f seconds\n\n', toc(step4_start));
@@ -191,7 +165,6 @@ grace_at_gps_ts = extractGRACEatGPS(u_vertical_ts, lat_grid, lon_grid, lat_gps, 
 % Fit linear trends to GRACE time series for consistent GPS-GRACE comparison
 grace_detrended = zeros(n_valid_stations, n_months);
 
-fprintf('  Fitting linear trends to GRACE time series for consistent comparison...\n');
 for i = 1:n_valid_stations
     grace_ts = grace_at_gps_ts(i, :)'; % meters (monthly)
     
@@ -208,14 +181,6 @@ step6_start = tic;
 comparison_stats = cell(n_valid_stations, 1);
 correlations = zeros(n_valid_stations, 1);
 
-% Compute deformation magnitudes for diagnostic output
-max_grace_deform = max(abs(u_vertical_ts(:))) * 1000; % Convert to mm
-mean_grace_deform = mean(abs(u_vertical_ts(:))) * 1000; % Convert to mm
-
-fprintf('  Deformation magnitude validation:\n');
-fprintf('    Max GRACE deformation: %.2f mm\n', max_grace_deform);
-fprintf('    Mean GRACE deformation: %.2f mm\n', mean_grace_deform);
-fprintf('    Expected range (literature): 5-50 mm seasonal\n');
 
 for i = 1:n_valid_stations
     gps_ts = gps_data{i};          % meters (daily, detrended)
@@ -235,23 +200,6 @@ for i = 1:n_valid_stations
     end
 end
 
-% Overall correlation statistics
-valid_correlations = correlations(~isnan(correlations));
-if ~isempty(valid_correlations)
-    mean_correlation = mean(valid_correlations);
-    stations_above_05 = sum(valid_correlations > 0.5);
-    stations_above_075 = sum(valid_correlations > 0.75);
-    
-    fprintf('  GPS-GRACE correlation validation:\n');
-    fprintf('    Mean correlation: %.3f\n', mean_correlation);
-    fprintf('    Stations with correlation > 0.5: %d/%d (%.1f%%)\n', ...
-            stations_above_05, length(valid_correlations), ...
-            100*stations_above_05/length(valid_correlations));
-    fprintf('    Stations with correlation > 0.75: %d/%d (%.1f%%)\n', ...
-            stations_above_075, length(valid_correlations), ...
-            100*stations_above_075/length(valid_correlations));
-    fprintf('    Expected (literature): >75%% above 0.75\n');
-end
 
 fprintf('  Step 6 completed in %.2f seconds\n\n', toc(step6_start));
 

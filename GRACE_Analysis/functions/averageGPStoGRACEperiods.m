@@ -45,7 +45,5 @@ for i = 1:n_grace_periods
     end
 end
 
-fprintf('GPS-GRACE alignment: %d/%d periods with valid data (%.1f%%)\n', ...
-        sum(grace_periods), n_grace_periods, 100*sum(grace_periods)/n_grace_periods);
 
 end

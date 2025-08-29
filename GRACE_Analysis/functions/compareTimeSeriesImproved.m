@@ -21,11 +21,9 @@ function stats = compareTimeSeriesImproved(gps_daily, time_gps, grace_ts, grace_
 stats = struct();
 
 % Apply low-pass filter to GPS data
-fprintf('Applying low-pass filter to GPS data...\n');
 gps_filtered = lowPassFilterGPS(gps_daily, time_gps);
 
 % Average GPS over exact GRACE periods
-fprintf('Averaging GPS to GRACE observation periods...\n');
 [gps_monthly, valid_periods] = averageGPStoGRACEperiods(gps_filtered, time_gps, grace_start_mjd, grace_end_mjd);
 
 % Extract corresponding GRACE values (only for valid periods)
@@ -111,12 +109,5 @@ else
     stats.max_correlation = stats.correlation;
 end
 
-% Quality assessment
-fprintf('GPS-GRACE Temporal Alignment Results:\n');
-fprintf('  Common periods: %d\n', n_common);
-fprintf('  Correlation: %.3f\n', stats.correlation);
-fprintf('  Best lag correlation: %.3f (lag: %+d months)\n', stats.max_correlation, stats.best_lag_months);
-fprintf('  RMSE: %.3f mm\n', stats.rmse * 1000);
-fprintf('  Amplitude ratio: %.3f\n', stats.amplitude_ratio);
 
 end

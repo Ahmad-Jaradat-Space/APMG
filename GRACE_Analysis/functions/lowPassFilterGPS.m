@@ -87,7 +87,6 @@ try
     % Apply zero-phase filtering to preserve temporal relationships
     gps_filtered = filtfilt(b, a, gps_clean);
     
-    fprintf('Applied low-pass filter: fc=%.3f cyc/day, order=4\n', fc);
     
 catch ME
     warning('Filter design failed: %s. Using unfiltered data.', ME.message);
