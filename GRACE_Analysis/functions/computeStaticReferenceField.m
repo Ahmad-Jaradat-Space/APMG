@@ -1,5 +1,9 @@
-function [cnm_static, snm_static] = computeStaticReferenceField(grace_dir, c20_file, deg1_file, reference_years)
-gfc_files = dir(fullfile(grace_dir, '*BB01*.gfc'));
+function [cnm_static, snm_static] = computeStaticReferenceField(grace_dir, c20_file, deg1_file, reference_years, nmax)
+% Use BA01 files with specified nmax to match main processing
+if nargin < 5
+    nmax = 60;  % Default to degree 60 for BA01 files
+end
+gfc_files = dir(fullfile(grace_dir, '*BA01*.gfc'));
 reference_files = {};
 reference_dates = [];
 for i = 1:length(gfc_files)
@@ -51,7 +55,6 @@ while ~feof(fid)
     end
 end
 fclose(fid);
-nmax = max(temp_data(:, 1));
 cnm_sum = zeros(nmax + 1, nmax + 1);
 snm_sum = zeros(nmax + 1, nmax + 1);
 valid_count = 0;
@@ -70,7 +73,7 @@ for i = 1:n_files
         end
     end
     fclose(fid);
-    [cnm, snm] = readSHC(temp_data);
+    [cnm, snm] = readSHC(temp_data, nmax);
     c20_interp = interp1(c20_time, c20_values, current_time, 'linear', 'extrap');
     cnm(3, 1) = c20_interp;
     cnm_sum = cnm_sum + cnm;

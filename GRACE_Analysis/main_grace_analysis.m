@@ -7,7 +7,7 @@ addpath(fullfile(pwd, 'lib', 'statistics'));
 addpath(fullfile(pwd, 'lib'));
 
 %% Confiduration
-nmax = 96;
+nmax = 60;
 earth_model = 'PREM';
 
 % Data paths
@@ -35,7 +35,7 @@ fprintf('Step 1: Loading Love numbers (%s model)...\n', earth_model);
 [h_n, ~, k_n] = loadLoveNumbers(nmax, earth_model);
 
 fprintf('Step 2: Processing GRACE coefficient files...\n');
-[cnm_ts, snm_ts, time_mjd_grace, grace_start_mjd, grace_end_mjd] = processGRACEfiles(grace_dir, c20_file, deg1_file);
+[cnm_ts, snm_ts, time_mjd_grace, grace_start_mjd, grace_end_mjd] = processGRACEfiles(grace_dir, c20_file, deg1_file, nmax);
 n_months = length(time_mjd_grace);
 
 fprintf('Step 3: Loading GPS time series data...\n');
@@ -132,7 +132,7 @@ u_vertical_ts = zeros(nlat, nlon, n_months);
 
 % Use pre-drought reference period to preserve California drought signal
 reference_years = 2002:2006;
-[cnm_static, snm_static] = computeStaticReferenceField(grace_dir, c20_file, deg1_file, reference_years);
+[cnm_static, snm_static] = computeStaticReferenceField(grace_dir, c20_file, deg1_file, reference_years, nmax);
 
 fprintf('  Processing %d time steps with static field removal (2002–2006) ...\n', n_months);
 for t = 1:n_months
@@ -215,9 +215,6 @@ end
 
 sgtitle('Vertical Crustal Deformation: GPS vs GRACE (PREM Model)', 'FontSize', 16, 'FontWeight', 'bold');
 print(fullfile(output_dir, 'time_series_gps_grace_prem.png'), '-dpng', '-r300');
-print(fullfile(output_dir, 'time_series_gps_grace_prem.eps'), '-depsc', '-r300');
-
-
 
 fprintf('Step 8: Creating spatial difference maps (GPS-GRACE) every 5 years...\n');
 analysis_years = [2005, 2010, 2015];
@@ -300,5 +297,4 @@ text(legend_ax, 0.5, 2, '|GPS-GRACE| < 5mm', 'FontSize', 8);
 text(legend_ax, 0.5, 1, '|GPS-GRACE| ≥ 5mm', 'FontSize', 8);
 set(legend_ax, 'XLim', [0, 3], 'YLim', [0, 4]);
 print(fullfile(output_dir, 'spatial_differences_5year.png'), '-dpng', '-r300');
-print(fullfile(output_dir, 'spatial_differences_5year.eps'), '-depsc', '-r300');
 

@@ -1,6 +1,9 @@
-function [cnm_ts, snm_ts, time_mjd, grace_start_mjd, grace_end_mjd] = processGRACEfiles(grace_dir, c20_file, deg1_file)
-% Use only BB01 files (degree 96, higher resolution)
-gfc_files = dir(fullfile(grace_dir, '*BB01*.gfc'));
+function [cnm_ts, snm_ts, time_mjd, grace_start_mjd, grace_end_mjd] = processGRACEfiles(grace_dir, c20_file, deg1_file, nmax)
+% Use BA01 files with specified nmax
+if nargin < 4
+    nmax = 60;  % Default to degree 60 for BA01 files
+end
+gfc_files = dir(fullfile(grace_dir, '*BA01*.gfc'));
 
 n_files = length(gfc_files);
 file_dates = zeros(n_files, 2);
@@ -79,21 +82,7 @@ convYM = @(ym) (floor(ym/100) + (mod(ym,100)-0.5)/12);
 t10 = arrayfun(convYM, Y10);
 t11 = arrayfun(convYM, Y11);
 
-% Read first file to get nmax
-first_file = fullfile(grace_dir, gfc_files(1).name);
-fid = fopen(first_file, 'r');
-temp_data = [];
-while ~feof(fid)
-    line = fgetl(fid);
-    if ischar(line) && startsWith(strtrim(line), 'gfc')
-        parts = str2num(line(4:end)); %#ok<ST2NM>
-        if length(parts) >= 4
-            temp_data = [temp_data; parts(1:4)]; %#ok<AGROW>
-        end
-    end
-end
-fclose(fid);
-nmax = max(temp_data(:, 1));
+% Use provided nmax to create consistent array dimensions
 cnm_ts = zeros(nmax + 1, nmax + 1, n_files);
 snm_ts = zeros(nmax + 1, nmax + 1, n_files);
 
@@ -112,7 +101,7 @@ for i = 1:n_files
         end
     end
     fclose(fid);
-    [cnm, snm] = readSHC(temp_data);
+    [cnm, snm] = readSHC(temp_data, nmax);
 
     % C20 replacement (normalized)
     c20_interp = interp1(c20_time, c20_values, current_time, 'linear', 'extrap');
