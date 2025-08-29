@@ -37,7 +37,7 @@ fprintf('  Step 1 completed in %.2f seconds\n\n', toc(step1_start));
 
 fprintf('Step 2: Processing GRACE coefficient files...\n');
 step2_start = tic;
-[cnm_ts, snm_ts, time_mjd_grace] = processGRACEfiles(grace_dir, c20_file, deg1_file);
+[cnm_ts, snm_ts, time_mjd_grace, grace_start_mjd, grace_end_mjd] = processGRACEfiles(grace_dir, c20_file, deg1_file);
 n_months = length(time_mjd_grace);
 
 % Coefficient magnitude validation
@@ -110,10 +110,30 @@ for i = 1:n_stations
         gps_struct = load_tenv3(station_file);
         if ~isempty(gps_struct) && isfield(gps_struct, 't') && isfield(gps_struct, 'up') && length(gps_struct.t) > 50
             time_mjd_gps{i} = gps_struct.t;
-            elevation = gps_struct.up;         % up is already in meters (.tenv3 format)
-            poly_result = fitPolynomial(time_mjd_gps{i}, elevation, 1, 0.001);
-            elevation_detrended = poly_result.v; % residuals in meters
-            % GPS data already in meters - no conversion needed
+            % Process GPS data for each station
+            elevation = gps_struct.up;
+            
+            % Special handling for P056 - two-segment linear detrending
+            if strcmp(station_names{i}, 'P056')
+                % Convert MJD to decimal years for break point
+                time_decyear = mjd2decyear(time_mjd_gps{i});
+                break_point_decyear = 2014.073; % From break detection analysis
+                
+                % Use piecewise linear detrending
+                poly_result = fitPiecewiseLinear(time_decyear, elevation, break_point_decyear);
+                elevation_detrended = poly_result.v;
+                
+                fprintf('P056: Applied two-segment detrending\n');
+                fprintf('  Break: %.3f (%.3f)\n', break_point_decyear, poly_result.break_point);
+                fprintf('  Slope1: %.3f mm/yr, Slope2: %.3f mm/yr\n', ...
+                    poly_result.slope1*1000, poly_result.slope2*1000);
+            else
+                % Regular polynomial detrending for other stations
+                poly_result = fitPolynomial(time_mjd_gps{i}, elevation, 1, 0.001);
+                elevation_detrended = poly_result.v;
+            end
+            
+            % Keep GPS in original millimeter units
             gps_data{i} = elevation_detrended;
             valid_stations(i) = true;
         end
@@ -185,28 +205,21 @@ fprintf('    Mean GRACE deformation: %.2f mm\n', mean_grace_deform);
 fprintf('    Expected range (literature): 5-50 mm seasonal\n');
 
 for i = 1:n_valid_stations
-    gps_ts = gps_data{i};          % meters
-    grace_ts = grace_at_gps_ts(i, :)'; % meters
+    gps_ts = gps_data{i};          % meters (daily, detrended)
+    grace_ts = grace_at_gps_ts(i, :)'; % meters (monthly)
     time_gps = time_mjd_gps{i};
     time_grace = time_mjd_grace;
     
-    % Calculate correlation for common time period
+    % Use improved correlation method with proper temporal alignment
     if length(gps_ts) > 1 && length(grace_ts) > 1
-        % Simple correlation calculation (avoiding toolbox dependency)
-        n_common = min(length(gps_ts), length(grace_ts));
-        x = gps_ts(1:n_common);
-        y = grace_ts(1:n_common);
-        
-        if std(x) > 1e-10 && std(y) > 1e-10
-            correlations(i) = sum((x - mean(x)) .* (y - mean(y))) / ...
-                             (sqrt(sum((x - mean(x)).^2)) * sqrt(sum((y - mean(y)).^2)));
-        else
-            correlations(i) = NaN;
-        end
+        stats = compareTimeSeriesImproved(gps_ts, time_gps, grace_ts, ...
+                                         grace_start_mjd, grace_end_mjd, time_grace);
+        correlations(i) = stats.correlation;
+        comparison_stats{i} = stats;
+    else
+        correlations(i) = NaN;
+        comparison_stats{i} = struct();
     end
-    
-    stats = compareTimeSeries(gps_ts, grace_ts, time_gps, time_grace);
-    comparison_stats{i} = stats;
 end
 
 % Overall correlation statistics

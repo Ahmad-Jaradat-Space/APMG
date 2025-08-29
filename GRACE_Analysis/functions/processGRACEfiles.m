@@ -1,4 +1,4 @@
-function [cnm_ts, snm_ts, time_mjd] = processGRACEfiles(grace_dir, c20_file, deg1_file)
+function [cnm_ts, snm_ts, time_mjd, grace_start_mjd, grace_end_mjd] = processGRACEfiles(grace_dir, c20_file, deg1_file)
 % Use only BB01 files (degree 96, higher resolution)
 gfc_files = dir(fullfile(grace_dir, '*BB01*.gfc'));
 
@@ -19,9 +19,20 @@ for i = 1:n_files
         file_dates(i, 2) = end_year + (end_doy - 1) / 365.25;
     end
 end
+% Calculate start, end, and mid times
+start_times = file_dates(:, 1);
+end_times = file_dates(:, 2);
 mid_times = mean(file_dates, 2);
+
+% Convert to MJD
+grace_start_mjd = decyear2mjd(start_times);
+grace_end_mjd = decyear2mjd(end_times);
 time_mjd = decyear2mjd(mid_times);
+
+% Sort all arrays consistently
 [time_mjd, sort_idx] = sort(time_mjd);
+grace_start_mjd = grace_start_mjd(sort_idx);
+grace_end_mjd = grace_end_mjd(sort_idx);
 gfc_files = gfc_files(sort_idx);
 
 % Load C20 replacement (normalized)
