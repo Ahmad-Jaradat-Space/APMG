@@ -24,12 +24,16 @@ p2 = polyfit(x2, y2, 1);
 slope2 = p2(1);
 intercept2 = p2(2);
 
-% Create detrended series
+% Create detrended series and fitted values
 y_detrended = y;
+y_fitted = y;
 y_detrended(1:break_idx) = y1 - (slope1 * x1 + intercept1);
 y_detrended(break_idx:end) = y2 - (slope2 * x2 + intercept2);
+y_fitted(1:break_idx) = slope1 * x1 + intercept1;
+y_fitted(break_idx:end) = slope2 * x2 + intercept2;
 
 result.v = y_detrended;
+result.lest = y_fitted;
 result.slope1 = slope1;
 result.slope2 = slope2;
 result.intercept1 = intercept1;

@@ -133,7 +133,7 @@ for i = 1:n_stations
                 elevation_detrended = poly_result.v;
             end
             
-            % Keep GPS in original millimeter units
+            % Store detrended GPS data
             gps_data{i} = elevation_detrended;
             valid_stations(i) = true;
         end
@@ -188,6 +188,19 @@ step5_start = tic;
 
 grace_at_gps_ts = extractGRACEatGPS(u_vertical_ts, lat_grid, lon_grid, lat_gps, lon_gps); % meters
 
+% Fit linear trends to GRACE time series for consistent GPS-GRACE comparison
+grace_detrended = zeros(n_valid_stations, n_months);
+
+fprintf('  Fitting linear trends to GRACE time series for consistent comparison...\n');
+for i = 1:n_valid_stations
+    grace_ts = grace_at_gps_ts(i, :)'; % meters (monthly)
+    
+    % Fit linear trend to GRACE data using time in MJD
+    poly_result = fitPolynomial(time_mjd_grace, grace_ts, 1, 0.001);
+    
+    grace_detrended(i, :) = poly_result.v';      % Store detrended GRACE
+end
+
 fprintf('  Step 5 completed in %.2f seconds\n\n', toc(step5_start));
 
 fprintf('Step 6: Statistical comparison of GPS and GRACE time series...\n');
@@ -206,7 +219,7 @@ fprintf('    Expected range (literature): 5-50 mm seasonal\n');
 
 for i = 1:n_valid_stations
     gps_ts = gps_data{i};          % meters (daily, detrended)
-    grace_ts = grace_at_gps_ts(i, :)'; % meters (monthly)
+    grace_ts = grace_detrended(i, :)'; % meters (monthly, detrended)
     time_gps = time_mjd_gps{i};
     time_grace = time_mjd_grace;
     
@@ -257,7 +270,7 @@ for i = 1:n_valid_stations
     gps_mm = gps_data{i} * 1000;       % meters -> mm
     plot(time_years_gps, gps_mm, 'b-', 'LineWidth', 2, 'DisplayName', 'GPS');
     hold on;
-    grace_mm = grace_at_gps_ts(i, :) * 1000; % meters -> mm
+    grace_mm = grace_detrended(i, :) * 1000; % meters -> mm  
     plot(time_years_grace, grace_mm, 'r-', 'LineWidth', 2, 'DisplayName', 'GRACE (PREM)');
     title(sprintf('Station %s (%.2f°N, %.2f°W)', station_names{i}, lat_gps(i), -lon_gps(i)), 'FontSize', 11, 'FontWeight', 'bold');
     xlabel('Year', 'FontSize', 10);
@@ -275,6 +288,7 @@ print(fullfile(output_dir, 'time_series_gps_grace_prem.png'), '-dpng', '-r300');
 print(fullfile(output_dir, 'time_series_gps_grace_prem.eps'), '-depsc', '-r300');
 
 fprintf('  Step 7 completed in %.2f seconds\n\n', toc(step7_start));
+
 
 fprintf('Step 8: Creating spatial difference maps (GPS-GRACE) every 5 years...\n');
 step8_start = tic;
