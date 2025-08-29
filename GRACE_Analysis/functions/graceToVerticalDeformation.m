@@ -9,15 +9,15 @@ sinm = sin([0:nmax]' * lambda_vec);
 for i = 1:nlat
     theta_deg = theta(i, 1) * 180/pi;
     lat_deg = 90 - theta_deg; % Convert colatitude to latitude
-    Pnm_matrix = pnm(lat_deg, nmax);
     deformation_lat = zeros(1, nlon);
     for n = 1:nmax
-        % Test normalization: use hn/(1+kn) only with pnm
+        % Fully normalized associated Legendre for this degree at this latitude
+        Pn = pnm(n, lat_deg, 0);  % size (n+1) x 1
         love_weight = h_n(n+1) / (1 + k_n(n+1));
         for m = 0:n
+            Pnm_val = Pn(m+1);  % scalar
             c_nm = cnm(n+1, m+1);
             s_nm = snm(n+1, m+1);
-            Pnm_val = Pnm_matrix(n+1, m+1);
             if m == 0
                 trig_terms = c_nm * ones(1, nlon);
             else
@@ -32,13 +32,8 @@ for i = 1:nlat
     u_vertical(i, :) = deformation_lat;
 end
 
-% FIXED: Use correct density scaling R * (ρe/(3ρw)) and apply negative sign
-% Positive load (EWH>0) should cause downward motion (negative u)
+% Canonical scaling with negative sign (positive load => downward)
 scale = constants.R * (constants.rho_earth / (3 * constants.rho_water));
 u_vertical = -scale * u_vertical;
 
-% REMOVED: Constant DDK3 gain factor (not scientifically justified)
-% Instead, apply degree-dependent spectral correction if needed
-% ddk3_gain_factor = 3.9;  % WRONG: constant factor
-% u_vertical = u_vertical * ddk3_gain_factor;
 end
