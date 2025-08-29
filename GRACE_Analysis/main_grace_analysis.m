@@ -5,31 +5,64 @@ addpath(fullfile(pwd, 'lib', 'spherical_harmonics'));
 addpath(fullfile(pwd, 'lib', 'time_utils'));
 addpath(fullfile(pwd, 'lib', 'statistics'));
 addpath(fullfile(pwd, 'lib'));
+
 nmax = 96;
 earth_model = 'PREM';
+
+% Data paths
 grace_dir = 'data/grace';
 c20_file = 'data/aux/C20_RL05.txt';
+% NOTE: For RL06 products, prefer TN-11E/TN-14 data for C20/C30 replacements
+% and TN-13 degree-1 series.
 deg1_file = 'data/aux/deg1_coef.txt';
+
 gps_data_dir = 'data/gps';
 gps_coords_file = 'data/gps/GPSLatLong.tenv3';
+
+% Spatial domain
 lat_range = [30, 50];
 lon_range = [-130, -110];
-grid_res = 1.0;
+
+grid_res = 1.0;  % degrees
+
 output_dir = 'output';
 if ~exist(output_dir, 'dir')
     mkdir(output_dir);
 end
+
 fprintf('Step 1: Loading Love numbers (%s model)...\n', earth_model);
 step1_start = tic;
 [h_n, l_n, k_n] = loadLoveNumbers(nmax, earth_model);
 fprintf('  Step 1 completed in %.2f seconds\n\n', toc(step1_start));
+
 fprintf('Step 2: Processing GRACE coefficient files...\n');
 step2_start = tic;
 [cnm_ts, snm_ts, time_mjd_grace] = processGRACEfiles(grace_dir, c20_file, deg1_file);
 n_months = length(time_mjd_grace);
+
+% Coefficient magnitude validation
+cnm_mean = mean(cnm_ts, 3);
+snm_mean = mean(snm_ts, 3);
+cnm_delta_example = cnm_ts(:,:,round(n_months/2)) - cnm_mean;
+snm_delta_example = snm_ts(:,:,round(n_months/2)) - snm_mean;
+max_cnm_delta = max(abs(cnm_delta_example(:)));
+max_snm_delta = max(abs(snm_delta_example(:)));
+
+fprintf('  Coefficient validation:\n');
+fprintf('    Max |Cnm delta|: %.2e\n', max_cnm_delta);
+fprintf('    Max |Snm delta|: %.2e\n', max_snm_delta);
+fprintf('    C20 delta: %.2e\n', cnm_delta_example(3,1));
+fprintf('    C22 delta: %.2e\n', cnm_delta_example(3,3));
+
+if max_cnm_delta < 1e-10 || max_snm_delta < 1e-10
+    warning('Coefficients approaching machine precision - results may be unreliable');
+end
+
 fprintf('  Step 2 completed in %.2f seconds\n\n', toc(step2_start));
+
 fprintf('Step 3: Loading GPS time series data...\n');
 step3_start = tic;
+
 fid = fopen(gps_coords_file, 'r');
 if fid == -1
     return;
@@ -55,8 +88,10 @@ while ~feof(fid)
     end
 end
 fclose(fid);
+
 station_names = keys(station_map);
 n_stations = length(station_names);
+
 lat_gps = zeros(n_stations, 1);
 lon_gps = zeros(n_stations, 1);
 for i = 1:n_stations
@@ -64,142 +99,186 @@ for i = 1:n_stations
     lat_gps(i) = coords(1);
     lon_gps(i) = coords(2);
 end
+
 gps_data = cell(n_stations, 1);
 time_mjd_gps = cell(n_stations, 1);
 valid_stations = false(n_stations, 1);
+
 for i = 1:n_stations
     station_file = fullfile(gps_data_dir, sprintf('%s.tenv3', station_names{i}));
     if exist(station_file, 'file')
         gps_struct = load_tenv3(station_file);
         if ~isempty(gps_struct) && isfield(gps_struct, 't') && isfield(gps_struct, 'up') && length(gps_struct.t) > 50
             time_mjd_gps{i} = gps_struct.t;
-            elevation = gps_struct.up;
+            elevation = gps_struct.up;         % up is already in meters (.tenv3 format)
             poly_result = fitPolynomial(time_mjd_gps{i}, elevation, 1, 0.001);
-            elevation_detrended = poly_result.v;
+            elevation_detrended = poly_result.v; % residuals in meters
+            % GPS data already in meters - no conversion needed
             gps_data{i} = elevation_detrended;
             valid_stations(i) = true;
         end
     end
 end
+
 lat_gps = lat_gps(valid_stations);
 lon_gps = lon_gps(valid_stations);
 gps_data = gps_data(valid_stations);
 time_mjd_gps = time_mjd_gps(valid_stations);
 n_valid_stations = sum(valid_stations);
+
 fprintf('  Step 3 completed in %.2f seconds\n\n', toc(step3_start));
+
 fprintf('Step 4: Converting GRACE to vertical deformation...\n');
 step4_start = tic;
+
 lat_vec = lat_range(1):grid_res:lat_range(2);
 lon_vec = lon_range(1):grid_res:lon_range(2);
 [lon_grid, lat_grid] = meshgrid(lon_vec, lat_vec);
+
 theta_grid = (90 - lat_grid) * pi / 180;
 lambda_grid = lon_grid * pi / 180;
+
 [nlat, nlon] = size(lat_grid);
 u_vertical_ts = zeros(nlat, nlon, n_months);
 
-% SCIENTIFIC APPROACH: Account for DDK3 filtering effects
-% DDK3 filtering has removed most seasonal signals (Kusche et al. 2009)
-% Use minimal baseline removal to preserve remaining variations
-fprintf('  Accounting for DDK3 filtering - preserving maximum signal...\n');
-fprintf('  Method: Minimal baseline removal to preserve DDK3-filtered variations\n');
+% Use pre-drought reference period to preserve California drought signal
+reference_years = 2002:2006;
+[cnm_static, snm_static] = computeStaticReferenceField(grace_dir, c20_file, deg1_file, reference_years);
 
-% Use only first 3 months as baseline to maximize preserved variations
-reference_months = min(3, n_months);
-fprintf('  Using first %d months as minimal baseline (DDK3 data has limited variations)\n', reference_months);
-
-cnm_mean = mean(cnm_ts(:, :, 1:reference_months), 3);
-snm_mean = mean(snm_ts(:, :, 1:reference_months), 3);
-
-fprintf('  Processing %d time steps with temporal mean removal:\n', n_months);
-fprintf('  This approach preserves seasonal hydrological loading variations\n');
-
-% Process each time step using coefficient differences from temporal mean
+fprintf('  Processing %d time steps with static field removal (2002–2006) ...\n', n_months);
 for t = 1:n_months
-    % Get absolute coefficients for this month
     cnm_abs = cnm_ts(:, :, t);
     snm_abs = snm_ts(:, :, t);
-    
-    % Compute coefficient changes relative to temporal mean
-    % This removes the static Earth field but preserves temporal variations
-    cnm_delta = cnm_abs - cnm_mean;
-    snm_delta = snm_abs - snm_mean;
-    
-    % Convert coefficient changes to vertical deformation
-    % This gives us the deformation due to time-varying mass redistribution
+
+    cnm_delta = cnm_abs - cnm_static;
+    snm_delta = snm_abs - snm_static;
+
     u_vertical = graceToVerticalDeformation(cnm_delta, snm_delta, theta_grid, lambda_grid, h_n, k_n);
-    
-    % Apply signal amplification to account for DDK3 filtering suppression
-    % Literature suggests DDK3 can reduce seasonal signals by factor of 10-50
-    signal_amplification = 20;  % Conservative amplification factor
-    u_vertical_amplified = u_vertical * signal_amplification;
-    
-    u_vertical_ts(:, :, t) = u_vertical_amplified;
-    
+    u_vertical_ts(:, :, t) = u_vertical; % meters
+
     if mod(t, 12) == 0 || t == n_months
         fprintf('    Processed %d/%d time steps (%.1f%%)\n', t, n_months, 100*t/n_months);
     end
 end
+
 fprintf('  Step 4 completed in %.2f seconds\n\n', toc(step4_start));
+
 fprintf('Step 5: Extracting GRACE deformation at GPS stations...\n');
 step5_start = tic;
-grace_at_gps_ts = extractGRACEatGPS(u_vertical_ts, lat_grid, lon_grid, lat_gps, lon_gps);
+
+grace_at_gps_ts = extractGRACEatGPS(u_vertical_ts, lat_grid, lon_grid, lat_gps, lon_gps); % meters
+
 fprintf('  Step 5 completed in %.2f seconds\n\n', toc(step5_start));
+
 fprintf('Step 6: Statistical comparison of GPS and GRACE time series...\n');
 step6_start = tic;
 comparison_stats = cell(n_valid_stations, 1);
+correlations = zeros(n_valid_stations, 1);
+
+% Compute deformation magnitudes for diagnostic output
+max_grace_deform = max(abs(u_vertical_ts(:))) * 1000; % Convert to mm
+mean_grace_deform = mean(abs(u_vertical_ts(:))) * 1000; % Convert to mm
+
+fprintf('  Deformation magnitude validation:\n');
+fprintf('    Max GRACE deformation: %.2f mm\n', max_grace_deform);
+fprintf('    Mean GRACE deformation: %.2f mm\n', mean_grace_deform);
+fprintf('    Expected range (literature): 5-50 mm seasonal\n');
+
 for i = 1:n_valid_stations
-    gps_ts = gps_data{i};
-    grace_ts = grace_at_gps_ts(i, :)';
+    gps_ts = gps_data{i};          % meters
+    grace_ts = grace_at_gps_ts(i, :)'; % meters
     time_gps = time_mjd_gps{i};
     time_grace = time_mjd_grace;
+    
+    % Calculate correlation for common time period
+    if length(gps_ts) > 1 && length(grace_ts) > 1
+        % Simple correlation calculation (avoiding toolbox dependency)
+        n_common = min(length(gps_ts), length(grace_ts));
+        x = gps_ts(1:n_common);
+        y = grace_ts(1:n_common);
+        
+        if std(x) > 1e-10 && std(y) > 1e-10
+            correlations(i) = sum((x - mean(x)) .* (y - mean(y))) / ...
+                             (sqrt(sum((x - mean(x)).^2)) * sqrt(sum((y - mean(y)).^2)));
+        else
+            correlations(i) = NaN;
+        end
+    end
+    
     stats = compareTimeSeries(gps_ts, grace_ts, time_gps, time_grace);
     comparison_stats{i} = stats;
 end
+
+% Overall correlation statistics
+valid_correlations = correlations(~isnan(correlations));
+if ~isempty(valid_correlations)
+    mean_correlation = mean(valid_correlations);
+    stations_above_05 = sum(valid_correlations > 0.5);
+    stations_above_075 = sum(valid_correlations > 0.75);
+    
+    fprintf('  GPS-GRACE correlation validation:\n');
+    fprintf('    Mean correlation: %.3f\n', mean_correlation);
+    fprintf('    Stations with correlation > 0.5: %d/%d (%.1f%%)\n', ...
+            stations_above_05, length(valid_correlations), ...
+            100*stations_above_05/length(valid_correlations));
+    fprintf('    Stations with correlation > 0.75: %d/%d (%.1f%%)\n', ...
+            stations_above_075, length(valid_correlations), ...
+            100*stations_above_075/length(valid_correlations));
+    fprintf('    Expected (literature): >75%% above 0.75\n');
+end
+
 fprintf('  Step 6 completed in %.2f seconds\n\n', toc(step6_start));
+
 fprintf('Step 7: Creating vertical deformation time series plots...\n');
 step7_start = tic;
 time_years_grace = mjd2decyear(time_mjd_grace);
 figure('Position', [50, 50, 1400, 800]);
 set(gcf, 'Color', 'white');
+
 n_cols = min(3, n_valid_stations);
 n_rows = ceil(n_valid_stations / n_cols);
+
 for i = 1:n_valid_stations
     subplot(n_rows, n_cols, i);
     time_years_gps = mjd2decyear(time_mjd_gps{i});
-    gps_mm = gps_data{i} * 1000;
+    gps_mm = gps_data{i} * 1000;       % meters -> mm
     plot(time_years_gps, gps_mm, 'b-', 'LineWidth', 2, 'DisplayName', 'GPS');
     hold on;
-    grace_mm = grace_at_gps_ts(i, :) * 1000;
+    grace_mm = grace_at_gps_ts(i, :) * 1000; % meters -> mm
     plot(time_years_grace, grace_mm, 'r-', 'LineWidth', 2, 'DisplayName', 'GRACE (PREM)');
     title(sprintf('Station %s (%.2f°N, %.2f°W)', station_names{i}, lat_gps(i), -lon_gps(i)), 'FontSize', 11, 'FontWeight', 'bold');
     xlabel('Year', 'FontSize', 10);
     ylabel('Vertical Deformation (mm)', 'FontSize', 10);
     legend('Location', 'best', 'FontSize', 9);
-    grid on;
-    grid minor;
+    grid on; grid minor;
     set(gca, 'FontSize', 9);
     ylim_range = max(abs([gps_mm; grace_mm'])) * 1.2;
     ylim([-ylim_range, ylim_range]);
     hold off;
 end
+
 sgtitle('Vertical Crustal Deformation: GPS vs GRACE (PREM Model)', 'FontSize', 16, 'FontWeight', 'bold');
 print(fullfile(output_dir, 'time_series_gps_grace_prem.png'), '-dpng', '-r300');
 print(fullfile(output_dir, 'time_series_gps_grace_prem.eps'), '-depsc', '-r300');
+
 fprintf('  Step 7 completed in %.2f seconds\n\n', toc(step7_start));
+
 fprintf('Step 8: Creating spatial difference maps (GPS-GRACE) every 5 years...\n');
 step8_start = tic;
 analysis_years = [2005, 2010, 2015];
 n_years = length(analysis_years);
 analysis_mjd = decyear2mjd(analysis_years);
+
 grace_indices = zeros(n_years, 1);
 for i = 1:n_years
     [~, grace_indices(i)] = min(abs(time_mjd_grace - analysis_mjd(i)));
 end
+
 figure('Position', [100, 100, 1200, 400]);
 set(gcf, 'Color', 'white');
 for i = 1:n_years
     subplot(1, n_years, i);
-    grace_field = u_vertical_ts(:, :, grace_indices(i)) * 1000;
+    grace_field = u_vertical_ts(:, :, grace_indices(i)) * 1000; % mm
     gps_field = zeros(size(lat_grid));
     for j = 1:n_valid_stations
         gps_time_year = mjd2decyear(time_mjd_gps{j});
@@ -207,7 +286,7 @@ for i = 1:n_years
         [~, lat_idx] = min(abs(lat_vec - lat_gps(j)));
         [~, lon_idx] = min(abs(lon_vec - lon_gps(j)));
         if gps_time_idx <= length(gps_data{j})
-            gps_field(lat_idx, lon_idx) = gps_data{j}(gps_time_idx) * 1000;
+            gps_field(lat_idx, lon_idx) = gps_data{j}(gps_time_idx) * 1000; % mm
         end
     end
     diff_field = nan(size(lat_grid));
@@ -218,10 +297,11 @@ for i = 1:n_years
         [~, gps_time_idx] = min(abs(gps_time_year - analysis_years(i)));
         if gps_time_idx <= length(gps_data{j})
             grace_val = grace_field(lat_idx, lon_idx);
-            gps_val = gps_data{j}(gps_time_idx) * 1000;
+            gps_val = gps_data{j}(gps_time_idx) * 1000; % mm
             diff_field(lat_idx, lon_idx) = gps_val - grace_val;
         end
     end
+
     surf(lon_grid, lat_grid, grace_field, 'EdgeColor', 'none', 'FaceAlpha', 0.7);
     hold on;
     for j = 1:n_valid_stations
@@ -231,7 +311,7 @@ for i = 1:n_years
             [~, lat_idx] = min(abs(lat_vec - lat_gps(j)));
             [~, lon_idx] = min(abs(lon_vec - lon_gps(j)));
             grace_val = grace_field(lat_idx, lon_idx);
-            gps_val = gps_data{j}(gps_time_idx) * 1000;
+            gps_val = gps_data{j}(gps_time_idx) * 1000; % mm
             diff_val = gps_val - grace_val;
             if abs(diff_val) < 2
                 marker_color = 'g';
@@ -250,13 +330,10 @@ for i = 1:n_years
     zlabel('Deformation (mm)', 'FontSize', 12);
     colormap(subplot(1, n_years, i), 'jet');
     caxis([-max(abs(grace_field(:))), max(abs(grace_field(:)))]);
-    cb = colorbar;
-    cb.Label.String = 'GRACE Deformation (mm)';
-    cb.Label.FontSize = 10;
-    view(2);
-    grid on;
-    hold off;
+    cb = colorbar; cb.Label.String = 'GRACE Deformation (mm)'; cb.Label.FontSize = 10;
+    view(2); grid on; hold off;
 end
+
 sgtitle('Spatial Distribution of Vertical Deformation (GPS vs GRACE)', 'FontSize', 16, 'FontWeight', 'bold');
 legend_ax = axes('Position', [0.02, 0.02, 0.15, 0.15], 'Visible', 'off');
 hold(legend_ax, 'on');
@@ -269,5 +346,6 @@ text(legend_ax, 0.5, 1, '|GPS-GRACE| ≥ 5mm', 'FontSize', 8);
 set(legend_ax, 'XLim', [0, 3], 'YLim', [0, 4]);
 print(fullfile(output_dir, 'spatial_differences_5year.png'), '-dpng', '-r300');
 print(fullfile(output_dir, 'spatial_differences_5year.eps'), '-depsc', '-r300');
+
 fprintf('  Step 8 completed in %.2f seconds\n\n', toc(step8_start));
 end

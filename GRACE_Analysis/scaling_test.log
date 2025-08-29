@@ -1,0 +1,42 @@
+=== GRACE SCALING FACTOR TEST ===
+
+Loading current analysis results...
+Testing GRACE deformation for 8 time points...
+
+=== CURRENT GRACE PERFORMANCE ===
+GRACE range: 3.19 mm (-0.26 to 2.94)
+GRACE std: 1.24 mm
+
+=== GPS COMPARISON TARGET ===
+GPS range (P056 drought): ~150 mm
+GPS seasonal amplitude: ~50 mm
+Target GRACE seasonal: 10-50 mm
+
+=== SCALING FACTOR ANALYSIS ===
+Current DDK3 factor: 3.9x
+
+For 20 mm target range:
+  Additional scaling needed: 6.3x
+  Total factor (vs no DDK3): 24.4x
+  Resulting range: 20.00 mm
+
+For 30 mm target range:
+  Additional scaling needed: 9.4x
+  Total factor (vs no DDK3): 36.6x
+  Resulting range: 30.00 mm
+
+For 50 mm target range:
+  Additional scaling needed: 15.7x
+  Total factor (vs no DDK3): 61.1x
+  Resulting range: 50.00 mm
+
+=== COEFFICIENT PRECISION CHECK ===
+Max |Cnm delta|: 1.10e-10
+Max |Snm delta|: 1.77e-10
+Machine epsilon: 2.22e-16
+Precision ratio: 496483.4 (should be >> 100 for reliable results)
+
+=== RECOMMENDATIONS ===
+1. GRACE signal too small - try stronger gain correction
+2. Alternative: Use different GRACE product (GFZ/JPL vs CSR)
+3. Alternative: Use mascon solutions instead of spherical harmonics

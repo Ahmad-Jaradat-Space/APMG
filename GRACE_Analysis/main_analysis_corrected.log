@@ -1,0 +1,54 @@
+Step 1: Loading Love numbers (PREM model)...
+  Step 1 completed in 0.01 seconds
+
+Step 2: Processing GRACE coefficient files...
+  Coefficient validation:
+    Max |Cnm delta|: 4.99e-11
+    Max |Snm delta|: 5.27e-11
+    C20 delta: 4.99e-11
+    C22 delta: 2.28e-12
+[Warning: Coefficients approaching machine precision - results may be unreliable] 
+[> In main_grace_analysis (line 58)] 
+  Step 2 completed in 32.75 seconds
+
+Step 3: Loading GPS time series data...
+  Step 3 completed in 1.25 seconds
+
+Step 4: Converting GRACE to vertical deformation...
+  Processing 156 time steps with static field removal (2002–2006) ...
+    Processed 12/156 time steps (7.7%)
+    Processed 24/156 time steps (15.4%)
+    Processed 36/156 time steps (23.1%)
+    Processed 48/156 time steps (30.8%)
+    Processed 60/156 time steps (38.5%)
+    Processed 72/156 time steps (46.2%)
+    Processed 84/156 time steps (53.8%)
+    Processed 96/156 time steps (61.5%)
+    Processed 108/156 time steps (69.2%)
+    Processed 120/156 time steps (76.9%)
+    Processed 132/156 time steps (84.6%)
+    Processed 144/156 time steps (92.3%)
+    Processed 156/156 time steps (100.0%)
+  Step 4 completed in 13.80 seconds
+
+Step 5: Extracting GRACE deformation at GPS stations...
+  Step 5 completed in 0.14 seconds
+
+Step 6: Statistical comparison of GPS and GRACE time series...
+  Deformation magnitude validation:
+    Max GRACE deformation: 10.51 mm
+    Mean GRACE deformation: 1.87 mm
+    Expected range (literature): 5-50 mm seasonal
+  GPS-GRACE correlation validation:
+    Mean correlation: 0.010
+    Stations with correlation > 0.5: 0/5 (0.0%)
+    Stations with correlation > 0.75: 0/5 (0.0%)
+    Expected (literature): >75% above 0.75
+  Step 6 completed in 0.10 seconds
+
+Step 7: Creating vertical deformation time series plots...
+  Step 7 completed in 14.34 seconds
+
+Step 8: Creating spatial difference maps (GPS-GRACE) every 5 years...
+  Step 8 completed in 3.86 seconds
+
