@@ -35,10 +35,13 @@ fprintf('Step 1: Loading Love numbers (%s model)...\n', earth_model);
 [h_n, ~, k_n] = loadLoveNumbers(nmax, earth_model);
 
 fprintf('Step 2: Processing GRACE coefficient files...\n');
+step2_start = tic;
 [cnm_ts, snm_ts, time_mjd_grace, grace_start_mjd, grace_end_mjd] = processGRACEfiles(grace_dir, c20_file, deg1_file);
 n_months = length(time_mjd_grace);
 
+
 fprintf('Step 3: Loading GPS time series data...\n');
+step3_start = tic;
 
 fid = fopen(gps_coords_file, 'r');
 if fid == -1
@@ -121,6 +124,7 @@ n_valid_stations = sum(valid_stations);
 
 
 fprintf('Step 4: Converting GRACE to vertical deformation...\n');
+step4_start = tic;
 
 lat_vec = lat_range(1):grid_res:lat_range(2);
 lon_vec = lon_range(1):grid_res:lon_range(2);
@@ -151,7 +155,7 @@ end
 
 
 fprintf('Step 5: Extracting GRACE deformation at GPS stations...\n');
-
+step5_start = tic;
 
 grace_at_gps_ts = extractGRACEatGPS(u_vertical_ts, lat_grid, lon_grid, lat_gps, lon_gps); % meters
 
@@ -169,6 +173,7 @@ end
 
 
 fprintf('Step 6: Statistical comparison of GPS and GRACE time series...\n');
+step6_start = tic;
 comparison_stats = cell(n_valid_stations, 1);
 correlations = zeros(n_valid_stations, 1);
 
@@ -194,6 +199,7 @@ end
 
 
 fprintf('Step 7: Creating vertical deformation time series plots...\n');
+step7_start = tic;
 time_years_grace = mjd2decyear(time_mjd_grace);
 figure('Position', [50, 50, 1400, 800]);
 set(gcf, 'Color', 'white');
@@ -227,6 +233,7 @@ print(fullfile(output_dir, 'time_series_gps_grace_prem.eps'), '-depsc', '-r300')
 
 
 fprintf('Step 8: Creating spatial difference maps (GPS-GRACE) every 5 years...\n');
+step8_start = tic;
 analysis_years = [2005, 2010, 2015];
 n_years = length(analysis_years);
 analysis_mjd = decyear2mjd(analysis_years);
